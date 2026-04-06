@@ -1,7 +1,11 @@
-import { MenuCarousel } from "@/components/menu-carousel";
-import { menuCategories } from "@/lib/menu-data";
+import { DrinksMenuGrid } from "@/components/drinks-menu-grid";
+import { getDrinkMenuCategories } from "@/lib/drinks-menu";
 
-export default function MenuPage() {
+export const dynamic = "force-dynamic";
+
+export default async function MenuPage() {
+  const menuCategories = await getDrinkMenuCategories();
+
   return (
     <div className="section-shell space-y-10 py-10 pb-24 lg:py-16">
       <div className="max-w-3xl space-y-4">
@@ -15,7 +19,7 @@ export default function MenuPage() {
 
       <div className="space-y-12">
         {menuCategories.map((category) => (
-          <MenuCarousel key={category.title} category={category} />
+          <DrinksMenuGrid key={category.key} category={category} />
         ))}
       </div>
     </div>

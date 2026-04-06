@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, Shield, User } from "lucide-react";
 import { useState } from "react";
+import { BrandLogo } from "@/components/brand-logo";
 import { cn } from "@/lib/utils";
 
 const navigation = [
@@ -28,7 +29,7 @@ export function SiteHeader({ isLoggedIn, isAdmin }: SiteHeaderProps) {
       <div className="section-shell flex h-20 items-center justify-between gap-4">
         <Link href="/" className="group flex items-center gap-3">
           <div className="premium-border rounded-2xl bg-gradient-to-br from-amber/25 to-transparent p-3">
-            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-amber to-bronze" />
+            <BrandLogo size="sm" />
           </div>
           <div>
             <p className="font-display text-2xl tracking-[0.12em] text-champagne">Garajul cu Bere</p>

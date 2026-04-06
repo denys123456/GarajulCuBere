@@ -24,7 +24,10 @@ export function MenuCarousel({ category }: { category: MenuCategory }) {
       return;
     }
 
-    const amount = ref.current.clientWidth * 0.82;
+    const firstCard = ref.current.firstElementChild as HTMLElement | null;
+    const gap = 16;
+    const amount = firstCard ? firstCard.offsetWidth + gap : ref.current.clientWidth * 0.82;
+
     ref.current.scrollBy({
       left: direction === "right" ? amount : -amount,
       behavior: "smooth"
@@ -56,10 +59,8 @@ export function MenuCarousel({ category }: { category: MenuCategory }) {
         </div>
       </div>
 
-      <motion.div
+      <div
         ref={ref}
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
         className="scrollbar-hidden flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3"
       >
         {category.items.map((item) => (
@@ -107,7 +108,7 @@ export function MenuCarousel({ category }: { category: MenuCategory }) {
             </div>
           </motion.article>
         ))}
-      </motion.div>
+      </div>
     </section>
   );
 }

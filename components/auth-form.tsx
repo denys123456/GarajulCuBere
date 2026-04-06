@@ -78,7 +78,7 @@ export function AuthForm({ mode }: AuthFormProps) {
               type="password"
               name="password"
               required
-              minLength={6}
+              minLength={5}
               className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none transition focus:border-amber/45"
             />
           </label>
