@@ -16,10 +16,10 @@ export function BrandLogo({ size = "md" }: BrandLogoProps) {
     size === "sm"
       ? "h-12 w-12 rounded-2xl"
       : size === "lg"
-        ? "h-[5.5rem] w-[5.5rem] rounded-[1.75rem]"
+        ? "h-[4.75rem] w-[4.75rem]"
         : "h-14 w-14 rounded-2xl";
 
-  const imageSize = size === "sm" ? "48px" : size === "lg" ? "88px" : "56px";
+  const imageSize = size === "sm" ? "48px" : size === "lg" ? "76px" : "56px";
 
   return (
     <div className={`relative overflow-hidden ${sizeClass}`}>
@@ -28,7 +28,7 @@ export function BrandLogo({ size = "md" }: BrandLogoProps) {
         alt="Garajul cu Bere logo"
         fill
         sizes={imageSize}
-        className="object-contain"
+        className="scale-[1.28] object-contain"
         onError={() => {
           if (index < sources.length - 1) {
             setIndex(index + 1);

@@ -27,10 +27,8 @@ export function SiteHeader({ isLoggedIn, isAdmin }: SiteHeaderProps) {
     <header className="sticky top-0 z-50 border-b border-[#e6d8c4] bg-[#f8f6f2]/88 backdrop-blur-2xl shadow-[0_10px_30px_rgba(67,46,21,0.06)]">
       <div className="section-shell flex h-24 items-center justify-between gap-6">
         <Link href="/" className="group flex items-center gap-3 sm:gap-4">
-          <div className="premium-border rounded-[1.6rem] bg-white/92 p-1.5 shadow-[0_18px_30px_rgba(67,46,21,0.08)]">
-            <div className="scale-[1.18]">
-              <BrandLogo size="lg" />
-            </div>
+          <div className="flex items-center justify-center">
+            <BrandLogo size="lg" />
           </div>
           <div className="hidden sm:block">
             <p className="font-display text-[2rem] font-semibold leading-none tracking-[-0.04em] text-ink">
