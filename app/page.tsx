@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Facebook, Instagram, Phone, Sparkles } from "lucide-react";
+import { ArrowRight, Clock3, Facebook, Instagram, MapPin, Phone, Sparkles } from "lucide-react";
 import { ensureSeedData } from "@/lib/bootstrap";
 import { businessInfo } from "@/lib/business-data";
 import { Reveal } from "@/components/reveal";
@@ -27,7 +27,7 @@ export default async function HomePage() {
                 <h1 className="font-display text-5xl font-bold leading-[0.95] tracking-[-0.05em] text-ink sm:text-6xl lg:text-7xl">
                   Garajul cu Bere
                 </h1>
-                <p className="max-w-2xl text-lg leading-8 text-ink/70">{businessInfo.supportingLine}</p>
+                <p className="max-w-2xl text-lg leading-9 text-ink/70">{businessInfo.supportingLine}</p>
               </div>
               <div className="flex flex-wrap gap-4">
                 <Link href="/menu" className="cta-primary gap-2">
@@ -41,32 +41,32 @@ export default async function HomePage() {
             </div>
 
             <div className="flex items-end">
-              <div className="glass-panel w-full rounded-[1.75rem] p-6">
-                <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="glass-panel w-full rounded-[1.75rem] p-4 sm:p-5">
+                <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
                   <a
                     href={businessInfo.instagram}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-3 rounded-full bg-[#f5efe6] px-5 py-3 text-sm font-medium text-ink"
+                    className="flex min-h-[62px] items-center justify-center gap-3 rounded-full border border-[#eadfce] bg-[#fcf7ef] px-4 py-3 text-center text-sm font-medium text-ink transition hover:bg-white"
                   >
-                    <Instagram className="h-4 w-4 text-amber" />
-                    Instagram
+                    <Instagram className="h-4 w-4 shrink-0 text-amber" />
+                    <span>Instagram</span>
                   </a>
                   <a
                     href={businessInfo.phoneHref}
-                    className="flex items-center gap-3 rounded-full bg-[#f5efe6] px-5 py-3 text-sm font-medium text-ink"
+                    className="flex min-h-[62px] items-center justify-center gap-3 rounded-full border border-[#eadfce] bg-[#fcf7ef] px-4 py-3 text-center text-sm font-medium text-ink transition hover:bg-white"
                   >
-                    <Phone className="h-4 w-4 text-amber" />
-                    Telefon
+                    <Phone className="h-4 w-4 shrink-0 text-amber" />
+                    <span>Telefon</span>
                   </a>
                   <a
                     href={businessInfo.facebook}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-3 rounded-full bg-[#f5efe6] px-5 py-3 text-sm font-medium text-ink"
+                    className="col-span-2 flex min-h-[62px] items-center justify-center gap-3 rounded-full border border-[#eadfce] bg-[#fcf7ef] px-4 py-3 text-center text-sm font-medium text-ink transition hover:bg-white lg:col-span-1"
                   >
-                    <Facebook className="h-4 w-4 text-amber" />
-                    Facebook
+                    <Facebook className="h-4 w-4 shrink-0 text-amber" />
+                    <span>Facebook</span>
                   </a>
                 </div>
               </div>
@@ -109,30 +109,64 @@ export default async function HomePage() {
 
       <Reveal className="section-shell py-10" delay={0.05}>
         <div className="grid gap-6">
-          <div className="glass-panel rounded-[2rem] p-8">
+          <div className="glass-panel rounded-[1.5rem] p-8">
             <p className="section-kicker">Evenimente</p>
             <h2 className="mt-4 font-display text-4xl font-semibold tracking-[-0.04em] text-ink">
               Nu există evenimente active
             </h2>
           </div>
-          <div className="glass-panel rounded-[2rem] p-8">
+
+          <div className="rounded-[1.5rem] border border-[#e4d8c8] bg-[#fffaf2] p-7 shadow-[0_18px_40px_rgba(67,46,21,0.08)] sm:p-8 lg:p-10">
             <p className="section-kicker">Evenimente trecute</p>
             <h2 className="mt-4 font-display text-4xl font-semibold tracking-[-0.04em] text-ink">Summer Events</h2>
-            <div className="mt-6 space-y-4 text-base leading-8 text-ink/70">
-              <p>Teren de Fotbal, Săbăoani (Neamț)</p>
-              <p>Strada Progresului, Neamt</p>
-              <p>sâmbătă, 24 august '24, ora 21:00 acces de la 20:00</p>
+
+            <div className="mt-8 max-w-[700px] space-y-5 text-base leading-9 text-ink/74">
               <p>
-                Pe 24 august 2024, te invităm să participi la prima ediție a evenimentului "Summer Memories" în
-                Săbăoani! Organizat de Garajul cu Bere, alături de partenerii săi, acest festival în aer liber promite o
-                seară memorabilă plină de muzică și distracție.
+                Pe <strong>24 august 2024</strong>, te invităm să participi la prima ediție a evenimentului{" "}
+                <strong>"Summer Memories"</strong> în <strong>Săbăoani</strong>!
               </p>
               <p>
-                Atmosfera va fi întreținută de DJ renumiți precum Nairam, Nicolle, Mutt & Dee, care vor asigura cele
-                mai bune mixuri muzicale, perfecte pentru a crea amintiri de neuitat. La tarabe și tobe live, Chi Pah
-                va electriza atmosfera, iar MC Anuryh va asigura buna dispoziție pe parcursul întregii seri.
+                Organizat de Garajul cu Bere, alături de partenerii săi, acest festival în aer liber promite o seară
+                memorabilă plină de muzică și distracție.
               </p>
-              <p>Vă așteptăm cu drag să celebrați vara la "Summer Memories", un eveniment care va avea loc anual.</p>
+              <p>
+                Atmosfera va fi întreținută de DJ renumiți precum Nairam, Nicolle, Mutt & Dee.
+              </p>
+              <p>
+                La tarabe și tobe live, Chi Pah va electriza atmosfera, iar MC Anuryh va asigura buna dispoziție.
+              </p>
+              <p>Vă așteptăm cu drag să celebrați vara!</p>
+            </div>
+
+            <div className="mt-8 rounded-[1.25rem] border border-[#eadfce] bg-white/80 p-5 sm:p-6">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="flex items-start gap-3 rounded-[1rem] bg-[#fcf7ef] p-4">
+                  <MapPin className="mt-1 h-5 w-5 shrink-0 text-amber" />
+                  <div className="space-y-1">
+                    <p className="text-sm uppercase tracking-[0.18em] text-amber/80">Locație</p>
+                    <p className="text-base leading-7 text-ink">
+                      <strong>Teren de Fotbal, Săbăoani (Neamț)</strong>
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 rounded-[1rem] bg-[#fcf7ef] p-4">
+                  <MapPin className="mt-1 h-5 w-5 shrink-0 text-amber" />
+                  <div className="space-y-1">
+                    <p className="text-sm uppercase tracking-[0.18em] text-amber/80">Adresă</p>
+                    <p className="text-base leading-7 text-ink">Strada Progresului, <strong>Neamț</strong></p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 rounded-[1rem] bg-[#fcf7ef] p-4 md:col-span-2">
+                  <Clock3 className="mt-1 h-5 w-5 shrink-0 text-amber" />
+                  <div className="space-y-1">
+                    <p className="text-sm uppercase tracking-[0.18em] text-amber/80">Program</p>
+                    <p className="text-base leading-7 text-ink">
+                      <strong>sâmbătă, 24 august '24</strong>
+                    </p>
+                    <p className="text-base leading-7 text-ink">ora 21:00 (acces de la 20:00)</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
