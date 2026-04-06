@@ -8,13 +8,13 @@ export const businessInfo = {
   facebook: "https://www.facebook.com/garajulcubere/",
   mapsUrl:
     "https://www.google.com/maps/search/?api=1&query=Strada+Luceaf%C4%83rului+617400+S%C4%83b%C4%83oani",
-  tagline: "Beer, Cocktails, Coffee and more",
+  tagline: "Garajul cu Bere",
   supportingLine:
-    "Locul perfect pentru seri bune, băuturi atent alese și evenimente care merită trăite.",
+    "Pentru momente de neuitat cu prietenii și băuturi atent selecționate",
   schedule: [
     { label: "Luni - Joi", value: "18:00 - 00:00" },
     { label: "Vineri - Sâmbătă", value: "18:00 - 02:00" },
     { label: "Duminică", value: "10:00 - 00:00" }
   ],
-  highlights: ["Terasă", "Cocktailuri excelente", "Dans"]
+  highlights: ["Terasă Premium", "Cocktailuri", "Muzică"]
 };

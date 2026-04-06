@@ -10,7 +10,7 @@ export function SiteFooter() {
           <p className="mt-3 max-w-sm text-sm leading-7 text-ink/65">{businessInfo.supportingLine}</p>
         </div>
         <div>
-          <p className="text-sm uppercase tracking-[0.3em] text-amber">Visit</p>
+          <p className="text-sm uppercase tracking-[0.3em] text-amber">Locație</p>
           <p className="mt-3 text-sm text-ink/70">{businessInfo.address}</p>
           <p className="mt-2 text-sm text-ink/70">{businessInfo.location}</p>
           <a href={businessInfo.phoneHref} className="mt-2 block text-sm text-amber">
@@ -18,10 +18,10 @@ export function SiteFooter() {
           </a>
         </div>
         <div>
-          <p className="text-sm uppercase tracking-[0.3em] text-amber">Explore</p>
+          <p className="text-sm uppercase tracking-[0.3em] text-amber">Navigare</p>
           <div className="mt-3 flex flex-wrap gap-4 text-sm text-ink/72">
-            <Link href="/menu">Menu</Link>
-            <Link href="/events">Events</Link>
+            <Link href="/menu">Meniu</Link>
+            <Link href="/events">Evenimente</Link>
             <Link href="/contact">Contact</Link>
           </div>
           <div className="mt-4 flex gap-4 text-sm">

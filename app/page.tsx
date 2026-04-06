@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Clock3, MapPin, Sparkles } from "lucide-react";
+import { ArrowRight, Facebook, Instagram, Phone, Sparkles } from "lucide-react";
 import { ensureSeedData } from "@/lib/bootstrap";
 import { businessInfo } from "@/lib/business-data";
 import { Reveal } from "@/components/reveal";
@@ -21,17 +21,17 @@ export default async function HomePage() {
             <div className="space-y-8">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#e1d4c1] bg-white/80 px-4 py-2 text-xs uppercase tracking-[0.32em] text-amber">
                 <Sparkles className="h-4 w-4" />
-                Premium bar experience
+                Terasă Premium
               </div>
               <div className="space-y-5">
                 <h1 className="font-display text-5xl font-bold leading-[0.95] tracking-[-0.05em] text-ink sm:text-6xl lg:text-7xl">
-                  A premium destination for cocktails, coffee, and long evenings.
+                  Garajul cu Bere
                 </h1>
                 <p className="max-w-2xl text-lg leading-8 text-ink/70">{businessInfo.supportingLine}</p>
               </div>
               <div className="flex flex-wrap gap-4">
                 <Link href="/menu" className="cta-primary gap-2">
-                  View Menu
+                  Vezi meniul
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link href="/contact" className="cta-secondary">
@@ -40,24 +40,34 @@ export default async function HomePage() {
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-              <div className="glass-panel rounded-[1.75rem] p-6">
-                <p className="section-kicker">Highlights</p>
-                <div className="mt-4 flex flex-wrap gap-3">
-                  {businessInfo.highlights.map((item) => (
-                    <span key={item} className="rounded-full bg-[#f5efe6] px-4 py-2 text-sm font-medium text-ink/80">
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className="glass-panel rounded-[1.75rem] p-6">
-                <div className="flex items-start gap-3">
-                  <MapPin className="mt-1 h-5 w-5 text-amber" />
-                  <div className="space-y-2">
-                    <p className="section-kicker">Location</p>
-                    <p className="text-sm leading-7 text-ink/72">{businessInfo.address}</p>
-                  </div>
+            <div className="flex items-end">
+              <div className="glass-panel w-full rounded-[1.75rem] p-6">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <a
+                    href={businessInfo.instagram}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-3 rounded-full bg-[#f5efe6] px-5 py-3 text-sm font-medium text-ink"
+                  >
+                    <Instagram className="h-4 w-4 text-amber" />
+                    Instagram
+                  </a>
+                  <a
+                    href={businessInfo.phoneHref}
+                    className="flex items-center gap-3 rounded-full bg-[#f5efe6] px-5 py-3 text-sm font-medium text-ink"
+                  >
+                    <Phone className="h-4 w-4 text-amber" />
+                    Telefon
+                  </a>
+                  <a
+                    href={businessInfo.facebook}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-3 rounded-full bg-[#f5efe6] px-5 py-3 text-sm font-medium text-ink"
+                  >
+                    <Facebook className="h-4 w-4 text-amber" />
+                    Facebook
+                  </a>
                 </div>
               </div>
             </div>
@@ -68,11 +78,11 @@ export default async function HomePage() {
       <Reveal className="section-shell py-10">
         <div className="mb-8 flex items-end justify-between gap-4">
           <div className="space-y-3">
-            <p className="section-kicker">Curated Menu</p>
-            <h2 className="section-title">Signature categories, presented with clarity</h2>
+            <p className="section-kicker">Meniu</p>
+            <h2 className="section-title">Alese frecvent</h2>
           </div>
           <Link href="/menu" className="text-sm font-semibold text-amber">
-            Full menu
+            Vezi meniul
           </Link>
         </div>
         <div className="section-divider mb-8" />
@@ -98,28 +108,31 @@ export default async function HomePage() {
       </Reveal>
 
       <Reveal className="section-shell py-10" delay={0.05}>
-        <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+        <div className="grid gap-6">
           <div className="glass-panel rounded-[2rem] p-8">
-            <p className="section-kicker">Past Events</p>
-            <h2 className="mt-4 font-display text-4xl font-semibold tracking-[-0.04em] text-ink">Summer Events</h2>
-            <p className="mt-4 max-w-xl text-base leading-8 text-ink/68">No active events</p>
+            <p className="section-kicker">Evenimente</p>
+            <h2 className="mt-4 font-display text-4xl font-semibold tracking-[-0.04em] text-ink">
+              Nu există evenimente active
+            </h2>
           </div>
           <div className="glass-panel rounded-[2rem] p-8">
-            <p className="section-kicker">Hours</p>
-            <div className="mt-5 space-y-4">
-              {businessInfo.schedule.map((row) => (
-                <div
-                  key={row.label}
-                  className="flex items-center justify-between gap-4 border-b border-[#eadfce] pb-4 text-sm last:border-b-0 last:pb-0"
-                >
-                  <span className="text-ink/64">{row.label}</span>
-                  <span className="font-semibold text-ink">{row.value}</span>
-                </div>
-              ))}
-            </div>
-            <div className="mt-6 flex items-center gap-3 text-sm text-ink/66">
-              <Clock3 className="h-4 w-4 text-amber" />
-              Designed for relaxed evenings and a clean guest journey.
+            <p className="section-kicker">Evenimente trecute</p>
+            <h2 className="mt-4 font-display text-4xl font-semibold tracking-[-0.04em] text-ink">Summer Events</h2>
+            <div className="mt-6 space-y-4 text-base leading-8 text-ink/70">
+              <p>Teren de Fotbal, Săbăoani (Neamț)</p>
+              <p>Strada Progresului, Neamt</p>
+              <p>sâmbătă, 24 august '24, ora 21:00 acces de la 20:00</p>
+              <p>
+                Pe 24 august 2024, te invităm să participi la prima ediție a evenimentului "Summer Memories" în
+                Săbăoani! Organizat de Garajul cu Bere, alături de partenerii săi, acest festival în aer liber promite o
+                seară memorabilă plină de muzică și distracție.
+              </p>
+              <p>
+                Atmosfera va fi întreținută de DJ renumiți precum Nairam, Nicolle, Mutt & Dee, care vor asigura cele
+                mai bune mixuri muzicale, perfecte pentru a crea amintiri de neuitat. La tarabe și tobe live, Chi Pah
+                va electriza atmosfera, iar MC Anuryh va asigura buna dispoziție pe parcursul întregii seri.
+              </p>
+              <p>Vă așteptăm cu drag să celebrați vara la "Summer Memories", un eveniment care va avea loc anual.</p>
             </div>
           </div>
         </div>
@@ -128,18 +141,26 @@ export default async function HomePage() {
       <Reveal className="section-shell py-10" delay={0.08}>
         <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="glass-panel rounded-[2rem] p-8">
-            <p className="section-kicker">Visit</p>
-            <h2 className="mt-4 font-display text-4xl font-semibold tracking-[-0.04em] text-ink">
-              Easy to find, effortless to revisit
-            </h2>
-            <p className="mt-4 text-base leading-8 text-ink/68">{businessInfo.location}</p>
+            <p className="section-kicker">Contact</p>
+            <div className="mt-4 space-y-6">
+              <div>
+                <p className="text-sm text-ink/45">Telefon</p>
+                <a href={businessInfo.phoneHref} className="mt-1 block text-lg text-ink">
+                  {businessInfo.phone}
+                </a>
+              </div>
+              <div>
+                <p className="text-sm text-ink/45">Locație</p>
+                <p className="mt-1 text-lg text-ink">{businessInfo.address}</p>
+              </div>
+            </div>
             <a href={businessInfo.mapsUrl} target="_blank" rel="noreferrer" className="cta-secondary mt-8">
-              Open Google Maps
+              Deschide Google Maps
             </a>
           </div>
           <div className="overflow-hidden rounded-[2rem] border border-[#e3d6c3] bg-white shadow-panel">
             <iframe
-              title="Garajul cu Bere map"
+              title="Hartă Garajul cu Bere"
               src={mapsEmbedUrl}
               className="h-[320px] w-full"
               loading="lazy"

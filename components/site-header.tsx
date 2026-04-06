@@ -8,9 +8,9 @@ import { BrandLogo } from "@/components/brand-logo";
 import { cn } from "@/lib/utils";
 
 const navigation = [
-  { href: "/", label: "Home" },
-  { href: "/menu", label: "Menu" },
-  { href: "/events", label: "Events" },
+  { href: "/", label: "Acasă" },
+  { href: "/menu", label: "Meniu" },
+  { href: "/events", label: "Evenimente" },
   { href: "/contact", label: "Contact" }
 ];
 
@@ -32,7 +32,7 @@ export function SiteHeader({ isLoggedIn, isAdmin }: SiteHeaderProps) {
           </div>
           <div className="hidden sm:block">
             <p className="font-display text-2xl font-semibold tracking-[-0.03em] text-ink">Garajul cu Bere</p>
-            <p className="mt-1 text-xs uppercase tracking-[0.28em] text-amber">Premium Bar Experience</p>
+            <p className="mt-1 text-xs uppercase tracking-[0.28em] text-amber">Terasă Premium</p>
           </div>
         </Link>
 
@@ -71,7 +71,7 @@ export function SiteHeader({ isLoggedIn, isAdmin }: SiteHeaderProps) {
             className="inline-flex items-center gap-2 rounded-full border border-[#d9cbb8] bg-white/80 px-4 py-2.5 text-sm font-medium text-ink transition duration-300 hover:bg-white"
           >
             <User className="h-4 w-4" />
-            {isLoggedIn ? "Account" : "Login"}
+            {isLoggedIn ? "Cont" : "Autentificare"}
           </Link>
         </div>
 
@@ -79,7 +79,7 @@ export function SiteHeader({ isLoggedIn, isAdmin }: SiteHeaderProps) {
           type="button"
           onClick={() => setOpen((value) => !value)}
           className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-[#d9cbb8] bg-white/80 text-ink lg:hidden"
-          aria-label="Open menu"
+          aria-label="Deschide meniul"
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
@@ -95,9 +95,7 @@ export function SiteHeader({ isLoggedIn, isAdmin }: SiteHeaderProps) {
                 onClick={() => setOpen(false)}
                 className={cn(
                   "rounded-2xl px-4 py-3 text-sm font-medium transition",
-                  pathname === item.href
-                    ? "bg-ink text-white"
-                    : "bg-white text-ink/78"
+                  pathname === item.href ? "bg-ink text-white" : "bg-white text-ink/78"
                 )}
               >
                 {item.label}
@@ -109,7 +107,7 @@ export function SiteHeader({ isLoggedIn, isAdmin }: SiteHeaderProps) {
                 onClick={() => setOpen(false)}
                 className="rounded-2xl bg-[#fbf5eb] px-4 py-3 text-sm font-medium text-amber"
               >
-                Admin Panel
+                Admin
               </Link>
             )}
             <Link
@@ -117,7 +115,7 @@ export function SiteHeader({ isLoggedIn, isAdmin }: SiteHeaderProps) {
               onClick={() => setOpen(false)}
               className="rounded-2xl bg-white px-4 py-3 text-sm font-medium text-ink"
             >
-              {isLoggedIn ? "Account" : "Login / Register"}
+              {isLoggedIn ? "Cont" : "Autentificare"}
             </Link>
           </div>
         </div>

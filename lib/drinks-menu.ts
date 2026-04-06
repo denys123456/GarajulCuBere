@@ -12,7 +12,8 @@ type DrinkCategoryKey =
   | "cocktailuri"
   | "vin-prosecco"
   | "cafea"
-  | "racoritoare";
+  | "racoritoare"
+  | "de-mancat";
 
 export type DrinkMenuItem = {
   imageSrc: string;
@@ -78,7 +79,12 @@ const CATEGORY_CONFIG: Array<{
   {
     key: "racoritoare",
     title: "Răcoritoare",
-    keywords: ["cola", "coca", "fanta", "sprite", "schweppes", "redbull", "juice", "cappy", "burn", "fuzetea", "aloevera", "dorna", "orangefresh", "lemonade", "tea", "figa", "tonic"]
+    keywords: ["cola", "coca", "fanta", "sprite", "schweppes", "redbull", "cappy", "juice", "dorna", "apa", "water"]
+  },
+  {
+    key: "de-mancat",
+    title: "De mâncat",
+    keywords: ["arahide", "lays", "popcorn", "sevendays", "chips", "snack"]
   }
 ];
 
@@ -86,13 +92,23 @@ const IMAGE_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".webp", ".avif", ".s
 
 const FORCED_CATEGORY_BY_FILE: Record<string, DrinkCategoryKey> = {
   "aperolspritz.png": "cocktailuri",
-  "arahide.png": "racoritoare",
-  "lays.png": "racoritoare",
-  "popcorn.png": "racoritoare",
-  "sevendays.png": "racoritoare"
+  "arahide.png": "de-mancat",
+  "lays.png": "de-mancat",
+  "popcorn.png": "de-mancat",
+  "sevendays.png": "de-mancat"
 };
 
 const REMOVED_FILES = new Set(["logo.png", "logo.jpg", "logo.jpeg", "logo.svg"]);
+const ALLOWED_RACORITOARE_FILES = new Set([
+  "cocacola.png",
+  "fanta.png",
+  "sprite.png",
+  "schweppes.png",
+  "redbull.png",
+  "cappy.png",
+  "cappypulpy.png",
+  "dorna.png"
+]);
 
 const NAME_REPLACEMENTS: Array<[RegExp, string]> = [
   [/\bCappucino\b/gi, "Cappuccino"],
@@ -125,25 +141,15 @@ function getCategoryKey(filename: string): DrinkCategoryKey {
     }
   }
 
-  if (
-    normalizedName.includes("gin") ||
-    normalizedName.includes("tonic")
-  ) {
+  if (normalizedName.includes("gin") || normalizedName.includes("tonic")) {
     return "gin";
   }
 
-  if (
-    normalizedName.includes("fresh") ||
-    normalizedName.includes("water") ||
-    normalizedName.includes("zero")
-  ) {
+  if (normalizedName.includes("fresh") || normalizedName.includes("water") || normalizedName.includes("zero")) {
     return "racoritoare";
   }
 
-  if (
-    normalizedName.includes("pack") ||
-    normalizedName.includes("bottle")
-  ) {
+  if (normalizedName.includes("pack") || normalizedName.includes("bottle")) {
     const withoutPack = normalizedName.replace(/pack|bottle/g, "");
 
     for (const category of CATEGORY_CONFIG) {
@@ -211,6 +217,12 @@ export async function getDrinkMenuCategories(): Promise<DrinkMenuCategory[]> {
     }
 
     const categoryKey = getCategoryKey(entry.name);
+    const normalizedName = normalizeFilename(entry.name);
+
+    if (categoryKey === "racoritoare" && !ALLOWED_RACORITOARE_FILES.has(`${normalizedName}${extension}`)) {
+      continue;
+    }
+
     const items = groupedItems.get(categoryKey);
 
     if (!items) {
