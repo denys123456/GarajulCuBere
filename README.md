@@ -1,6 +1,6 @@
 # Garajul cu Bere
 
-Platformă premium construită cu `Next.js`, `TailwindCSS`, `Framer Motion`, `Prisma SQLite` și autentificare pe credentials cu sesiune JWT în cookie `httpOnly`.
+Platformă premium construită cu `Next.js`, `TailwindCSS`, `Framer Motion`, `Prisma PostgreSQL/Neon` și autentificare pe credentials cu sesiune JWT în cookie `httpOnly`.
 
 ## Include
 
@@ -17,11 +17,12 @@ Platformă premium construită cu `Next.js`, `TailwindCSS`, `Framer Motion`, `Pr
 1. Copiază `.env.example` în `.env`
 2. Rulează `npm install`
 3. Rulează `npx prisma generate`
-4. Rulează `npx prisma db push`
-5. Opțional: `npm run seed`
-6. Rulează `npm run dev`
+4. Configurează `DATABASE_URL` către Neon în `.env`
+5. Rulează `npx prisma db push`
+6. Opțional: `npm run seed`
+7. Rulează `npm run dev`
 
-Aplicația seed-uiește automat adminul și evenimentele la primul request server-side dacă baza de date există deja.
+Aplicația seed-uiește automat adminul și evenimentele la primul request server-side dacă baza de date Neon există deja și schema este aplicată.
 
 ## Admin implicit
 
