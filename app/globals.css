@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html {
@@ -11,11 +11,11 @@ html {
 }
 
 body {
-  @apply bg-ink text-white antialiased;
+  @apply bg-cream text-ink antialiased;
   background-image:
-    radial-gradient(circle at top, rgba(212, 164, 93, 0.12), transparent 24%),
-    radial-gradient(circle at 85% 20%, rgba(139, 101, 49, 0.12), transparent 18%),
-    linear-gradient(180deg, #080808 0%, #0f0f0f 48%, #070707 100%);
+    radial-gradient(circle at top, rgba(183, 139, 71, 0.12), transparent 26%),
+    radial-gradient(circle at 85% 12%, rgba(143, 106, 54, 0.1), transparent 20%),
+    linear-gradient(180deg, #fbf8f3 0%, #f8f6f2 55%, #f3ede4 100%);
 }
 
 body::before {
@@ -24,31 +24,31 @@ body::before {
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+    linear-gradient(rgba(89, 64, 37, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(89, 64, 37, 0.03) 1px, transparent 1px);
   background-size: 72px 72px;
-  mask-image: radial-gradient(circle at center, black, transparent 85%);
+  mask-image: radial-gradient(circle at center, black, transparent 88%);
 }
 
 ::selection {
-  background: rgba(212, 164, 93, 0.28);
-  color: white;
+  background: rgba(183, 139, 71, 0.24);
+  color: #2f241c;
 }
 
 .glass-panel {
-  @apply border border-white/10 bg-white/5 backdrop-blur-xl shadow-panel;
+  @apply border border-[#dccdb9] bg-white/75 backdrop-blur-xl shadow-panel;
 }
 
 .section-shell {
-  @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  @apply mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-10;
 }
 
 .section-title {
-  @apply font-display text-4xl tracking-[0.08em] text-champagne sm:text-5xl;
+  @apply font-display text-4xl font-bold tracking-[-0.03em] text-ink sm:text-5xl lg:text-6xl;
 }
 
 .section-kicker {
-  @apply text-xs uppercase tracking-[0.35em] text-amber/70;
+  @apply text-xs font-semibold uppercase tracking-[0.32em] text-amber;
 }
 
 .premium-border {
@@ -61,7 +61,7 @@ body::before {
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, rgba(212, 164, 93, 0.55), transparent, rgba(255, 255, 255, 0.05));
+  background: linear-gradient(135deg, rgba(183, 139, 71, 0.3), rgba(255, 255, 255, 0.45), rgba(143, 106, 54, 0.1));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -74,4 +74,36 @@ body::before {
 
 .scrollbar-hidden::-webkit-scrollbar {
   display: none;
+}
+
+.page-intro {
+  @apply max-w-3xl space-y-4;
+}
+
+.section-divider {
+  @apply h-px w-full bg-gradient-to-r from-[#c89d59]/70 via-[#d8cab5] to-transparent;
+}
+
+.cta-primary {
+  @apply inline-flex items-center justify-center rounded-full bg-ink px-6 py-3 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-carbon;
+}
+
+.cta-secondary {
+  @apply inline-flex items-center justify-center rounded-full border border-[#d8cab5] bg-white/80 px-6 py-3 text-sm font-semibold text-ink transition duration-300 hover:-translate-y-0.5 hover:bg-white;
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.7s ease-out both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

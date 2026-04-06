@@ -10,10 +10,7 @@ import { TicketPurchaseCard } from "@/components/ticket-purchase-card";
 export default async function EventDetailsPage({ params }: { params: Promise<{ slug: string }> }) {
   await ensureSeedData();
   const { slug } = await params;
-  const [event, user] = await Promise.all([
-    prisma.event.findUnique({ where: { slug } }),
-    getCurrentUser()
-  ]);
+  const [event, user] = await Promise.all([prisma.event.findUnique({ where: { slug } }), getCurrentUser()]);
 
   if (!event) {
     notFound();
@@ -23,31 +20,31 @@ export default async function EventDetailsPage({ params }: { params: Promise<{ s
     <div className="section-shell py-10 pb-24 lg:py-16">
       <div className="grid gap-6 lg:grid-cols-[1.12fr_0.88fr]">
         <div className="space-y-6">
-          <div className="premium-border glass-panel overflow-hidden rounded-[2rem]">
+          <div className="overflow-hidden rounded-[2rem] border border-[#e5d8c5] bg-white shadow-panel">
             <div className="relative h-[420px]">
               <Image src={event.image} alt={event.title} fill className="object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#2f241c]/45 via-[#2f241c]/5 to-transparent" />
             </div>
           </div>
-          <div className="premium-border glass-panel rounded-[2rem] p-8">
+          <div className="glass-panel rounded-[2rem] p-8">
             <p className="section-kicker">Event Details</p>
-            <h1 className="mt-4 font-display text-6xl text-white">{event.title}</h1>
-            <p className="mt-4 text-sm leading-8 text-white/62">{event.description}</p>
+            <h1 className="mt-4 font-display text-6xl font-semibold tracking-[-0.05em] text-ink">{event.title}</h1>
+            <p className="mt-4 text-sm leading-8 text-ink/62">{event.description}</p>
             <div className="mt-8 grid gap-3 md:grid-cols-3">
-              <div className="rounded-2xl border border-white/8 bg-black/20 p-4 text-sm text-white/75">
+              <div className="rounded-2xl bg-white p-4 text-sm text-ink/75 shadow-[0_8px_20px_rgba(67,46,21,0.06)]">
                 <CalendarDays className="mb-3 h-5 w-5 text-amber" />
                 {formatDate(event.date)}
               </div>
-              <div className="rounded-2xl border border-white/8 bg-black/20 p-4 text-sm text-white/75">
+              <div className="rounded-2xl bg-white p-4 text-sm text-ink/75 shadow-[0_8px_20px_rgba(67,46,21,0.06)]">
                 <Clock3 className="mb-3 h-5 w-5 text-amber" />
                 {event.startHour}
               </div>
-              <div className="rounded-2xl border border-white/8 bg-black/20 p-4 text-sm text-white/75">
+              <div className="rounded-2xl bg-white p-4 text-sm text-ink/75 shadow-[0_8px_20px_rgba(67,46,21,0.06)]">
                 <Ticket className="mb-3 h-5 w-5 text-amber" />
                 {event.duration}
               </div>
             </div>
-            <div className="mt-8 inline-flex rounded-full border border-amber/20 bg-amber/10 px-5 py-3 text-sm text-champagne">
+            <div className="mt-8 inline-flex rounded-full bg-[#fbf5eb] px-5 py-3 text-sm font-medium text-amber">
               {formatCurrency(event.price)}
             </div>
           </div>

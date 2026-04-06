@@ -8,11 +8,11 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
   return (
     <section className="space-y-5">
       <div className="space-y-2">
-        <p className="font-display text-3xl text-champagne">{category.title}</p>
-        <div className="h-px w-full max-w-2xl bg-gradient-to-r from-amber/50 via-white/10 to-transparent" />
+        <p className="font-display text-3xl font-semibold tracking-[-0.03em] text-ink">{category.title}</p>
+        <div className="section-divider max-w-2xl" />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         {category.items.map((item, index) => (
           <motion.article
             key={item.imageSrc}
@@ -20,23 +20,24 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.25 }}
             transition={{ duration: 0.28, delay: index * 0.03 }}
-            whileHover={{ scale: 1.02, y: -6 }}
-            className="premium-border glass-panel group overflow-hidden rounded-[2rem] p-4 transition-shadow duration-300 hover:shadow-[0_28px_70px_rgba(0,0,0,0.38)]"
+            whileHover={{ scale: 1.03, y: -4 }}
+            className="group overflow-hidden rounded-2xl border border-[#e5d8c5] bg-white p-3 shadow-[0_16px_30px_rgba(67,46,21,0.07)] transition-all duration-300 hover:shadow-[0_22px_40px_rgba(67,46,21,0.12)]"
           >
-            <div className="relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(212,164,93,0.2),transparent_55%),linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))]">
-              <div className="relative aspect-[4/3]">
+            <div className="relative overflow-hidden rounded-2xl bg-[linear-gradient(180deg,#fbf8f3,#efe5d7)]">
+              <div className="absolute inset-0 bg-gradient-to-t from-[#3e3025]/8 via-transparent to-white/35" />
+              <div className="relative h-52">
                 <Image
                   src={item.imageSrc}
                   alt={item.name}
                   fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                  className="object-contain p-6 transition-transform duration-300 group-hover:scale-105"
+                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1536px) 33vw, 20vw"
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
             </div>
 
             <div className="px-2 pb-2 pt-4">
-              <p className="font-display text-2xl leading-tight text-white">{item.name}</p>
+              <p className="font-display text-xl font-semibold leading-tight text-ink">{item.name}</p>
             </div>
           </motion.article>
         ))}

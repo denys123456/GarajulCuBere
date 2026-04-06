@@ -1,19 +1,20 @@
 import { GalleryGrid } from "@/components/gallery-grid";
+import { Reveal } from "@/components/reveal";
 import { galleryItems } from "@/lib/seed-data";
 
 export default function GalleryPage() {
   return (
     <div className="section-shell py-10 pb-24 lg:py-16">
-      <div className="max-w-3xl space-y-4">
+      <div className="page-intro">
         <p className="section-kicker">Gallery</p>
-        <h1 className="section-title">Premium atmosphere, framed in motion</h1>
-        <p className="text-sm leading-8 text-white/60">
-          O galerie întunecată, aerisită și cinematică, construită cu lightbox fullscreen și tranziții fluide.
+        <h1 className="section-title">Moments framed with more breathing room</h1>
+        <p className="text-base leading-8 text-ink/68">
+          A lighter, quieter gallery presentation that keeps the focus on atmosphere and detail.
         </p>
       </div>
-      <div className="mt-10">
+      <Reveal className="mt-10">
         <GalleryGrid items={[...galleryItems]} />
-      </div>
+      </Reveal>
     </div>
   );
 }

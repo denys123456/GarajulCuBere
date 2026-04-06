@@ -17,7 +17,7 @@ export function LogoutButton() {
         router.push("/");
         router.refresh();
       }}
-      className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-white"
+      className="rounded-full border border-[#d9cbb8] bg-white px-5 py-3 text-sm font-medium text-ink"
     >
       {loading ? "Ieșire..." : "Logout"}
     </button>

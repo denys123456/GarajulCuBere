@@ -1,28 +1,26 @@
-import { EventCard } from "@/components/event-card";
 import { ensureSeedData } from "@/lib/bootstrap";
-import { prisma } from "@/lib/prisma";
+import { Reveal } from "@/components/reveal";
 
 export default async function EventsPage() {
   await ensureSeedData();
-  const events = await prisma.event.findMany({
-    orderBy: { date: "asc" }
-  });
 
   return (
     <div className="section-shell py-10 pb-24 lg:py-16">
-      <div className="max-w-3xl space-y-4">
+      <div className="page-intro">
         <p className="section-kicker">Events</p>
-        <h1 className="section-title">Curated nights with account-based access</h1>
-        <p className="text-sm leading-8 text-white/60">
-          Rezervarea biletelor se face doar din contul tău. Fiecare acces rămâne salvat în dashboard, împreună cu
-          detaliile cumpărătorului și codul de ticket.
+        <h1 className="section-title">A quieter, more premium events presentation</h1>
+        <p className="text-base leading-8 text-ink/68">
+          A minimal status block keeps the page clean while preserving the existing events area in the site structure.
         </p>
       </div>
-      <div className="mt-10 grid gap-6 lg:grid-cols-2">
-        {events.map((event) => (
-          <EventCard key={event.id} event={event} />
-        ))}
-      </div>
+
+      <Reveal className="mx-auto mt-14 max-w-3xl">
+        <div className="glass-panel rounded-[2rem] px-8 py-14 text-center">
+          <p className="section-kicker">Past Events</p>
+          <h2 className="mt-5 font-display text-5xl font-semibold tracking-[-0.04em] text-ink">Summer Events</h2>
+          <p className="mt-5 text-lg text-ink/66">No active events</p>
+        </div>
+      </Reveal>
     </div>
   );
 }

@@ -67,94 +67,52 @@ export function AdminEventForm({ mode, event }: AdminEventFormProps) {
   }
 
   const initialDate = event ? new Date(event.date).toISOString().slice(0, 10) : "";
+  const inputClass =
+    "rounded-2xl border border-[#dfd0bc] bg-white px-4 py-3 outline-none transition focus:border-[#b78b47]";
 
   return (
-    <div className="premium-border glass-panel rounded-[2rem] p-8">
+    <div className="glass-panel rounded-[2rem] p-8">
       <p className="section-kicker">{mode === "create" ? "New Event" : "Edit Event"}</p>
-      <h1 className="mt-4 font-display text-5xl text-white">
+      <h1 className="mt-4 font-display text-5xl font-semibold tracking-[-0.04em] text-ink">
         {mode === "create" ? "Create premium event" : "Update event"}
       </h1>
 
       <form onSubmit={onSubmit} className="mt-8 grid gap-4">
-        <label className="grid gap-2 text-sm text-white/72">
+        <label className="grid gap-2 text-sm text-ink/72">
           Title
-          <input
-            name="title"
-            required
-            defaultValue={event?.title}
-            className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
-          />
+          <input name="title" required defaultValue={event?.title} className={inputClass} />
         </label>
-        <label className="grid gap-2 text-sm text-white/72">
+        <label className="grid gap-2 text-sm text-ink/72">
           General image
-          <input
-            name="image"
-            required
-            defaultValue={event?.image}
-            className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
-          />
+          <input name="image" required defaultValue={event?.image} className={inputClass} />
         </label>
-        <label className="grid gap-2 text-sm text-white/72">
+        <label className="grid gap-2 text-sm text-ink/72">
           Description
-          <textarea
-            name="description"
-            required
-            defaultValue={event?.description}
-            rows={5}
-            className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
-          />
+          <textarea name="description" required defaultValue={event?.description} rows={5} className={inputClass} />
         </label>
         <div className="grid gap-4 md:grid-cols-3">
-          <label className="grid gap-2 text-sm text-white/72">
+          <label className="grid gap-2 text-sm text-ink/72">
             Price
-            <input
-              type="number"
-              name="price"
-              min={0}
-              required
-              defaultValue={event?.price}
-              className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
-            />
+            <input type="number" name="price" min={0} required defaultValue={event?.price} className={inputClass} />
           </label>
-          <label className="grid gap-2 text-sm text-white/72">
+          <label className="grid gap-2 text-sm text-ink/72">
             Date
-            <input
-              type="date"
-              name="date"
-              required
-              defaultValue={initialDate}
-              className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
-            />
+            <input type="date" name="date" required defaultValue={initialDate} className={inputClass} />
           </label>
-          <label className="grid gap-2 text-sm text-white/72">
+          <label className="grid gap-2 text-sm text-ink/72">
             Start hour
-            <input
-              name="startHour"
-              required
-              placeholder="20:00"
-              defaultValue={event?.startHour}
-              className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
-            />
+            <input name="startHour" required placeholder="20:00" defaultValue={event?.startHour} className={inputClass} />
           </label>
         </div>
-        <label className="grid gap-2 text-sm text-white/72">
+        <label className="grid gap-2 text-sm text-ink/72">
           Duration
-          <input
-            name="duration"
-            required
-            defaultValue={event?.duration}
-            className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
-          />
+          <input name="duration" required defaultValue={event?.duration} className={inputClass} />
         </label>
 
-        {error && <p className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">{error}</p>}
+        {error && <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
 
         <div className="flex flex-wrap gap-3">
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-full bg-gradient-to-r from-amber to-bronze px-5 py-3 text-sm font-semibold text-black"
-          >
+          <button type="submit" disabled={loading} className="cta-primary">
             {loading ? "Se procesează..." : mode === "create" ? "Add event" : "Save changes"}
           </button>
           {mode === "edit" && (
@@ -162,7 +120,7 @@ export function AdminEventForm({ mode, event }: AdminEventFormProps) {
               type="button"
               onClick={onDelete}
               disabled={loading}
-              className="rounded-full border border-red-500/25 bg-red-500/10 px-5 py-3 text-sm text-red-200"
+              className="rounded-full border border-red-200 bg-red-50 px-5 py-3 text-sm font-medium text-red-700"
             >
               Delete event
             </button>
