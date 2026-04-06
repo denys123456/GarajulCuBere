@@ -7,15 +7,18 @@ import { useEffect, useRef, useState } from "react";
 import type { DrinkMenuCategory } from "@/lib/drinks-menu";
 
 export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
-  const scrollerRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const firstCardRef = useRef<HTMLElement | null>(null);
   const dragStateRef = useRef<{
     pointerId: number;
     startX: number;
-    startScrollLeft: number;
-    dragging: boolean;
+    startOffset: number;
   } | null>(null);
   const [itemsPerView, setItemsPerView] = useState(1);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [cardStep, setCardStep] = useState(0);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
   const maxIndex = Math.max(0, category.items.length - itemsPerView);
 
   useEffect(() => {
@@ -39,34 +42,51 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
     return () => window.removeEventListener("resize", updateItemsPerView);
   }, []);
 
-  const getStep = () => {
-    if (!scrollerRef.current) {
-      return 0;
-    }
+  useEffect(() => {
+    const updateStep = () => {
+      if (!firstCardRef.current && viewportRef.current) {
+        const firstCard = viewportRef.current.querySelector<HTMLElement>("[data-menu-card]");
+        firstCardRef.current = firstCard;
+      }
 
-    const card = scrollerRef.current.querySelector<HTMLElement>("[data-menu-card]");
-    return card ? card.offsetWidth + 16 : scrollerRef.current.clientWidth;
-  };
+      if (firstCardRef.current) {
+        setCardStep(firstCardRef.current.offsetWidth + 16);
+      }
+    };
 
-  const moveToIndex = (index: number, behavior: ScrollBehavior = "smooth") => {
-    if (!scrollerRef.current) {
+    updateStep();
+
+    if (!viewportRef.current) {
       return;
     }
 
-    const nextIndex = Math.max(0, Math.min(index, maxIndex));
-    const step = getStep();
+    const observer = new ResizeObserver(updateStep);
+    observer.observe(viewportRef.current);
+    if (firstCardRef.current) {
+      observer.observe(firstCardRef.current);
+    }
 
-    setActiveIndex(nextIndex);
-    scrollerRef.current.scrollTo({
-      left: step * nextIndex,
-      behavior
-    });
-  };
+    window.addEventListener("resize", updateStep);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateStep);
+    };
+  }, [category.items.length]);
 
   useEffect(() => {
     setActiveIndex((current) => Math.min(current, maxIndex));
-    requestAnimationFrame(() => moveToIndex(Math.min(activeIndex, maxIndex), "auto"));
-  }, [itemsPerView, maxIndex]);
+    setDragOffset(0);
+  }, [maxIndex]);
+
+  const moveToIndex = (index: number) => {
+    const nextIndex = Math.max(0, Math.min(index, maxIndex));
+    setDragOffset(0);
+    setActiveIndex(nextIndex);
+  };
+
+  const baseTranslate = -(activeIndex * cardStep);
+  const trackTranslate = baseTranslate + dragOffset;
 
   return (
     <section className="space-y-5">
@@ -96,86 +116,87 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
       </div>
 
       <div
-        ref={scrollerRef}
-        className="scrollbar-hidden flex gap-4 overflow-x-auto pb-2"
-        style={{ scrollSnapType: "x mandatory", touchAction: "pan-y" }}
+        ref={viewportRef}
+        className="overflow-hidden pb-2"
+        style={{ touchAction: "pan-y" }}
         onPointerDown={(event) => {
-          if (!scrollerRef.current) {
-            return;
-          }
-
           dragStateRef.current = {
             pointerId: event.pointerId,
             startX: event.clientX,
-            startScrollLeft: scrollerRef.current.scrollLeft,
-            dragging: true
+            startOffset: dragOffset
           };
-
+          setIsDragging(true);
           event.currentTarget.setPointerCapture(event.pointerId);
         }}
         onPointerMove={(event) => {
-          if (!scrollerRef.current || !dragStateRef.current?.dragging) {
+          if (!dragStateRef.current || dragStateRef.current.pointerId !== event.pointerId) {
             return;
           }
 
           const delta = event.clientX - dragStateRef.current.startX;
-          scrollerRef.current.scrollLeft = dragStateRef.current.startScrollLeft - delta;
+          setDragOffset(dragStateRef.current.startOffset + delta);
         }}
         onPointerUp={(event) => {
-          if (!scrollerRef.current || !dragStateRef.current) {
+          if (!dragStateRef.current || dragStateRef.current.pointerId !== event.pointerId) {
             return;
           }
 
-          const step = getStep();
-          const nextIndex = step > 0 ? Math.round(scrollerRef.current.scrollLeft / step) : activeIndex;
-
-          dragStateRef.current.dragging = false;
-          event.currentTarget.releasePointerCapture(dragStateRef.current.pointerId);
+          const projectedIndex = cardStep > 0 ? Math.round((-trackTranslate) / cardStep) : activeIndex;
           dragStateRef.current = null;
-          moveToIndex(nextIndex);
+          setIsDragging(false);
+          event.currentTarget.releasePointerCapture(event.pointerId);
+          moveToIndex(projectedIndex);
         }}
-        onPointerCancel={() => {
-          if (!scrollerRef.current || !dragStateRef.current) {
+        onPointerCancel={(event) => {
+          if (!dragStateRef.current || dragStateRef.current.pointerId !== event.pointerId) {
             return;
           }
 
-          const step = getStep();
-          const nextIndex = step > 0 ? Math.round(scrollerRef.current.scrollLeft / step) : activeIndex;
-
           dragStateRef.current = null;
-          moveToIndex(nextIndex);
+          setIsDragging(false);
+          moveToIndex(activeIndex);
         }}
       >
-        {category.items.map((item, index) => (
-          <motion.article
-            key={item.imageSrc}
-            data-menu-card
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.25 }}
-            transition={{ duration: 0.28, delay: index * 0.03 }}
-            whileHover={{ scale: 1.03, y: -4 }}
-            className="group w-[calc(100%-1rem)] shrink-0 overflow-hidden rounded-[1.4rem] border border-[#e5d8c5] bg-white p-3 shadow-[0_16px_30px_rgba(67,46,21,0.07)] transition-all duration-300 hover:shadow-[0_22px_40px_rgba(67,46,21,0.12)] sm:w-[calc(50%-0.5rem)] xl:w-[calc(25%-0.75rem)]"
-            style={{ scrollSnapAlign: "start" }}
-          >
-            <div className="relative overflow-hidden rounded-[1.2rem] bg-[linear-gradient(180deg,#fbf8f3,#efe5d7)]">
-              <div className="absolute inset-0 bg-gradient-to-t from-[#3e3025]/8 via-transparent to-white/35" />
-              <div className="relative h-52">
-                <Image
-                  src={item.imageSrc}
-                  alt={item.name}
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                />
+        <div
+          className="scrollbar-hidden flex gap-4 will-change-transform"
+          style={{
+            transform: `translateX(${trackTranslate}px)`,
+            transition: isDragging ? "none" : "transform 0.28s cubic-bezier(0.22, 1, 0.36, 1)"
+          }}
+        >
+          {category.items.map((item, index) => (
+            <motion.article
+              key={item.imageSrc}
+              data-menu-card
+              ref={index === 0 ? (node) => {
+                firstCardRef.current = node;
+              } : undefined}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 0.28, delay: index * 0.03 }}
+              whileHover={{ scale: 1.03, y: -4 }}
+              className="group w-[calc(100%-1rem)] shrink-0 overflow-hidden rounded-[1.4rem] border border-[#e5d8c5] bg-white p-3 shadow-[0_16px_30px_rgba(67,46,21,0.07)] transition-all duration-300 hover:shadow-[0_22px_40px_rgba(67,46,21,0.12)] sm:w-[calc(50%-0.5rem)] xl:w-[calc(25%-0.75rem)]"
+            >
+              <div className="relative overflow-hidden rounded-[1.2rem] bg-[linear-gradient(180deg,#fbf8f3,#efe5d7)]">
+                <div className="absolute inset-0 bg-gradient-to-t from-[#3e3025]/8 via-transparent to-white/35" />
+                <div className="relative h-52">
+                  <Image
+                    src={item.imageSrc}
+                    alt={item.name}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="px-2 pb-2 pt-4">
-              <p className="font-display text-xl font-semibold leading-tight text-ink">{item.name}</p>
-            </div>
-          </motion.article>
-        ))}
+              <div className="px-2 pb-2 pt-4">
+                <p className="font-display text-xl font-semibold leading-tight text-ink">{item.name}</p>
+              </div>
+            </motion.article>
+          ))}
+        </div>
       </div>
     </section>
   );

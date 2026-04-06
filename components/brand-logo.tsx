@@ -16,10 +16,10 @@ export function BrandLogo({ size = "md" }: BrandLogoProps) {
     size === "sm"
       ? "h-12 w-12 rounded-2xl"
       : size === "lg"
-        ? "h-24 w-24 rounded-[1.75rem]"
+        ? "h-[5.5rem] w-[5.5rem] rounded-[1.75rem]"
         : "h-14 w-14 rounded-2xl";
 
-  const imageSize = size === "sm" ? "48px" : size === "lg" ? "96px" : "56px";
+  const imageSize = size === "sm" ? "48px" : size === "lg" ? "88px" : "56px";
 
   return (
     <div className={`relative overflow-hidden ${sizeClass}`}>

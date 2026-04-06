@@ -28,7 +28,7 @@ export function SiteHeader({ isLoggedIn, isAdmin }: SiteHeaderProps) {
       <div className="section-shell flex h-24 items-center justify-between gap-6">
         <Link href="/" className="group flex items-center gap-3 sm:gap-4">
           <div className="premium-border rounded-[1.6rem] bg-white/92 p-1.5 shadow-[0_18px_30px_rgba(67,46,21,0.08)]">
-            <div className="scale-[1.35]">
+            <div className="scale-[1.18]">
               <BrandLogo size="lg" />
             </div>
           </div>
