@@ -1,19 +1,21 @@
-import { PublicGalleryGrid } from "@/components/public-gallery-grid";
+import { getCurrentUser } from "@/lib/auth";
+import { GalleryPageClient } from "@/components/gallery-page-client";
 import { getGalleryItems } from "@/lib/gallery-store";
 
 export default async function GalleryPage() {
-  const galleryItems = await getGalleryItems();
+  const [galleryItems, user] = await Promise.all([getGalleryItems(), getCurrentUser()]);
+  const items = galleryItems.map((item) => ({
+    ...item,
+    url: item.image
+  }));
 
   return (
     <div className="section-shell py-10 pb-24 lg:py-16">
       <div className="page-intro">
-        <p className="section-kicker">Gallery</p>
-        <h1 className="section-title">Moments framed with more breathing room</h1>
-        <p className="text-base leading-8 text-ink/68">
-          A lighter, quieter gallery presentation that keeps the focus on atmosphere and detail.
-        </p>
+        <p className="section-kicker">Galerie</p>
+        <h1 className="section-title">Galerie</h1>
       </div>
-      <PublicGalleryGrid initialItems={galleryItems} />
+      <GalleryPageClient initialItems={items} isAdmin={user?.role === "ADMIN"} />
     </div>
   );
 }

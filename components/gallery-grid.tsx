@@ -2,40 +2,62 @@
 
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { X } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 import { useState } from "react";
 
 type GalleryItem = {
+  id?: string;
   title: string;
   image: string;
 };
 
-export function GalleryGrid({ items }: { items: GalleryItem[] }) {
+export function GalleryGrid({
+  items,
+  isAdmin = false,
+  deletingId,
+  onDelete
+}: {
+  items: GalleryItem[];
+  isAdmin?: boolean;
+  deletingId?: string | null;
+  onDelete?: (id: string) => void;
+}) {
   const [active, setActive] = useState<GalleryItem | null>(null);
 
   return (
     <>
-      <div className="columns-1 gap-4 sm:columns-2 lg:columns-3">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         {items.map((item, index) => (
-          <motion.button
-            type="button"
+          <motion.article
             key={item.title}
-            onClick={() => setActive(item)}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
-            className="group relative mb-4 block w-full overflow-hidden rounded-[1.75rem] border border-[#e5d8c5] bg-white text-left shadow-[0_16px_30px_rgba(67,46,21,0.07)]"
+            className="group relative overflow-hidden rounded-[1.75rem] border border-[#e5d8c5] bg-white shadow-[0_16px_30px_rgba(67,46,21,0.07)]"
           >
-            <Image
-              src={item.image}
-              alt={item.title}
-              width={900}
-              height={1200}
-              className="h-auto w-full transition duration-500 group-hover:scale-[1.03]"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#2f241c]/60 via-[#2f241c]/5 to-transparent" />
-            <p className="absolute bottom-5 left-5 font-display text-2xl font-semibold text-white">{item.title}</p>
-          </motion.button>
+            <button type="button" onClick={() => setActive(item)} className="block w-full text-left">
+              <div className="relative h-72 overflow-hidden bg-[#f7f0e5] sm:h-80">
+                <Image
+                  src={item.image}
+                  alt={item.title}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                  className="object-cover transition duration-500 group-hover:scale-[1.03]"
+                />
+              </div>
+            </button>
+            {isAdmin && item.id && onDelete && (
+              <button
+                type="button"
+                onClick={() => onDelete(item.id!)}
+                className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/92 text-red-700 shadow-panel"
+                aria-label={`Sterge ${item.title}`}
+              >
+                <Trash2 className="h-4 w-4" />
+                {deletingId === item.id && <span className="sr-only">Se sterge</span>}
+              </button>
+            )}
+          </motion.article>
         ))}
       </div>
 
