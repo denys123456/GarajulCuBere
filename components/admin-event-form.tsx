@@ -14,6 +14,8 @@ type AdminEventFormProps = {
     date: Date;
     duration: string;
     startHour: string;
+    location: string;
+    address: string;
   };
 };
 
@@ -108,6 +110,16 @@ export function AdminEventForm({ mode, event }: AdminEventFormProps) {
           Duration
           <input name="duration" required defaultValue={event?.duration} className={inputClass} />
         </label>
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="grid gap-2 text-sm text-ink/72">
+            Location
+            <input name="location" defaultValue={event?.location} className={inputClass} />
+          </label>
+          <label className="grid gap-2 text-sm text-ink/72">
+            Address
+            <input name="address" defaultValue={event?.address} className={inputClass} />
+          </label>
+        </div>
 
         {error && <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
 

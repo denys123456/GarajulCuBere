@@ -1,0 +1,32 @@
+[
+  {
+    "id": "gallery-1",
+    "title": "Bar Signature",
+    "image": "/gallery/gallery-1.svg"
+  },
+  {
+    "id": "gallery-2",
+    "title": "Lounge Flow",
+    "image": "/gallery/gallery-2.svg"
+  },
+  {
+    "id": "gallery-3",
+    "title": "Golden Pour",
+    "image": "/gallery/gallery-3.svg"
+  },
+  {
+    "id": "gallery-4",
+    "title": "Night Vibe",
+    "image": "/gallery/gallery-4.svg"
+  },
+  {
+    "id": "gallery-5",
+    "title": "Cocktail Detail",
+    "image": "/gallery/gallery-5.svg"
+  },
+  {
+    "id": "gallery-6",
+    "title": "Weekend Crowd",
+    "image": "/gallery/gallery-6.svg"
+  }
+]

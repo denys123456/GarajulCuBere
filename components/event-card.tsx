@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Clock3, Ticket, CalendarDays } from "lucide-react";
+import { Clock3, Ticket, CalendarDays, MapPin } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 type EventCardProps = {
@@ -13,6 +13,8 @@ type EventCardProps = {
     date: Date;
     duration: string;
     startHour: string;
+    location: string;
+    address: string;
   };
 };
 
@@ -45,6 +47,15 @@ export function EventCard({ event }: EventCardProps) {
             {event.duration}
           </div>
         </div>
+        {(event.location || event.address) && (
+          <div className="flex items-start gap-2 rounded-2xl border border-white/8 bg-black/20 px-3 py-3 text-sm text-white/70">
+            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-amber" />
+            <div>
+              {event.location && <div>{event.location}</div>}
+              {event.address && <div className="text-white/55">{event.address}</div>}
+            </div>
+          </div>
+        )}
         <Link
           href={`/events/${event.slug}`}
           className="inline-flex rounded-full bg-gradient-to-r from-amber to-bronze px-6 py-3 text-sm font-semibold text-black"

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { Clock3, CalendarDays, Ticket } from "lucide-react";
+import { Clock3, CalendarDays, MapPin, Ticket } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 import { ensureSeedData } from "@/lib/bootstrap";
 import { prisma } from "@/lib/prisma";
@@ -44,6 +44,13 @@ export default async function EventDetailsPage({ params }: { params: Promise<{ s
                 {event.duration}
               </div>
             </div>
+            {(event.location || event.address) && (
+              <div className="mt-3 rounded-2xl bg-white p-4 text-sm text-ink/75 shadow-[0_8px_20px_rgba(67,46,21,0.06)]">
+                <MapPin className="mb-3 h-5 w-5 text-amber" />
+                {event.location && <div>{event.location}</div>}
+                {event.address && <div className="mt-1 text-ink/55">{event.address}</div>}
+              </div>
+            )}
             <div className="mt-8 inline-flex rounded-full bg-[#fbf5eb] px-5 py-3 text-sm font-medium text-amber">
               {formatCurrency(event.price)}
             </div>

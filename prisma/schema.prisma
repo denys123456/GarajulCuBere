@@ -37,6 +37,8 @@ model Event {
   date        DateTime
   duration    String
   startHour   String
+  location    String   @default("")
+  address     String   @default("")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   tickets     Ticket[]

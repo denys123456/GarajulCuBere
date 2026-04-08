@@ -11,7 +11,9 @@ const schema = z.object({
   price: z.coerce.number().min(0),
   date: z.string().min(1),
   duration: z.string().min(1),
-  startHour: z.string().min(1)
+  startHour: z.string().min(1),
+  location: z.string().optional().default(""),
+  address: z.string().optional().default("")
 });
 
 export async function POST(request: Request) {

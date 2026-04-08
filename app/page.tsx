@@ -1,14 +1,27 @@
 import Link from "next/link";
-import { ArrowRight, Clock3, Facebook, Instagram, MapPin, Phone, Sparkles } from "lucide-react";
+import { ArrowRight, Facebook, Instagram, Phone, Sparkles } from "lucide-react";
 import { ensureSeedData } from "@/lib/bootstrap";
 import { businessInfo } from "@/lib/business-data";
-import { Reveal } from "@/components/reveal";
 import { getDrinkMenuCategories } from "@/lib/drinks-menu";
+import { isPastEvent } from "@/lib/event-utils";
+import { prisma } from "@/lib/prisma";
+import { EventCard } from "@/components/event-card";
+import { Reveal } from "@/components/reveal";
 
 export default async function HomePage() {
   await ensureSeedData();
 
-  const featuredCategories = (await getDrinkMenuCategories()).slice(0, 6);
+  const [featuredCategories, events] = await Promise.all([
+    getDrinkMenuCategories().then((categories) => categories.slice(0, 6)),
+    prisma.event.findMany({
+      orderBy: {
+        date: "asc"
+      }
+    })
+  ]);
+
+  const activeEvents = events.filter((event) => !isPastEvent(event));
+  const pastEvents = events.filter((event) => isPastEvent(event)).sort((a, b) => +new Date(b.date) - +new Date(a.date));
   const mapsEmbedUrl =
     "https://www.google.com/maps?q=Strada+Luceaf%C4%83rului+617400+S%C4%83b%C4%83oani&z=15&output=embed";
 
@@ -21,7 +34,7 @@ export default async function HomePage() {
             <div className="space-y-8">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#e1d4c1] bg-white/80 px-4 py-2 text-xs uppercase tracking-[0.32em] text-amber">
                 <Sparkles className="h-4 w-4" />
-                Terasă Premium
+                Terasa Premium
               </div>
               <div className="space-y-5">
                 <h1 className="font-display text-5xl font-bold leading-[0.95] tracking-[-0.05em] text-ink sm:text-6xl lg:text-7xl">
@@ -111,63 +124,28 @@ export default async function HomePage() {
         <div className="grid gap-6">
           <div className="glass-panel rounded-[1.5rem] p-8">
             <p className="section-kicker">Evenimente</p>
-            <h2 className="mt-4 font-display text-4xl font-semibold tracking-[-0.04em] text-ink">
-              Nu există evenimente active
-            </h2>
+            <h2 className="mt-4 font-display text-4xl font-semibold tracking-[-0.04em] text-ink">Evenimente active</h2>
+            {activeEvents.length === 0 ? (
+              <p className="mt-4 text-base leading-8 text-ink/68">Nu exista evenimente active</p>
+            ) : (
+              <div className="mt-8 grid gap-6 lg:grid-cols-2">
+                {activeEvents.slice(0, 2).map((event) => (
+                  <EventCard key={event.id} event={event} />
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="rounded-[1.5rem] border border-[#e4d8c8] bg-[#fffaf2] p-7 shadow-[0_18px_40px_rgba(67,46,21,0.08)] sm:p-8 lg:p-10">
             <p className="section-kicker">Evenimente trecute</p>
-            <h2 className="mt-4 font-display text-4xl font-semibold tracking-[-0.04em] text-ink">Summer Events</h2>
-
-            <div className="mt-8 max-w-[700px] space-y-5 text-base leading-9 text-ink/74">
-              <p>
-                Pe <strong>24 august 2024</strong>, te invităm să participi la prima ediție a evenimentului{" "}
-                <strong>"Summer Memories"</strong> în <strong>Săbăoani</strong>!
-              </p>
-              <p>
-                Organizat de Garajul cu Bere, alături de partenerii săi, acest festival în aer liber promite o seară
-                memorabilă plină de muzică și distracție.
-              </p>
-              <p>
-                Atmosfera va fi întreținută de DJ renumiți precum Nairam, Nicolle, Mutt & Dee.
-              </p>
-              <p>
-                La tarabe și tobe live, Chi Pah va electriza atmosfera, iar MC Anuryh va asigura buna dispoziție.
-              </p>
-              <p>Vă așteptăm cu drag să celebrați vara!</p>
-            </div>
-
-            <div className="mt-8 rounded-[1.25rem] border border-[#eadfce] bg-white/80 p-5 sm:p-6">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="flex items-start gap-3 rounded-[1rem] bg-[#fcf7ef] p-4">
-                  <MapPin className="mt-1 h-5 w-5 shrink-0 text-amber" />
-                  <div className="space-y-1">
-                    <p className="text-sm uppercase tracking-[0.18em] text-amber/80">Locație</p>
-                    <p className="text-base leading-7 text-ink">
-                      <strong>Teren de Fotbal, Săbăoani (Neamț)</strong>
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 rounded-[1rem] bg-[#fcf7ef] p-4">
-                  <MapPin className="mt-1 h-5 w-5 shrink-0 text-amber" />
-                  <div className="space-y-1">
-                    <p className="text-sm uppercase tracking-[0.18em] text-amber/80">Adresă</p>
-                    <p className="text-base leading-7 text-ink">Strada Progresului, <strong>Neamț</strong></p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 rounded-[1rem] bg-[#fcf7ef] p-4 md:col-span-2">
-                  <Clock3 className="mt-1 h-5 w-5 shrink-0 text-amber" />
-                  <div className="space-y-1">
-                    <p className="text-sm uppercase tracking-[0.18em] text-amber/80">Program</p>
-                    <p className="text-base leading-7 text-ink">
-                      <strong>sâmbătă, 24 august '24</strong>
-                    </p>
-                    <p className="text-base leading-7 text-ink">ora 21:00 (acces de la 20:00)</p>
-                  </div>
-                </div>
+            <h2 className="mt-4 font-display text-4xl font-semibold tracking-[-0.04em] text-ink">Ultimele evenimente</h2>
+            {pastEvents.length > 0 && (
+              <div className="mt-8 grid gap-6 lg:grid-cols-2">
+                {pastEvents.slice(0, 2).map((event) => (
+                  <EventCard key={event.id} event={event} />
+                ))}
               </div>
-            </div>
+            )}
           </div>
         </div>
       </Reveal>
@@ -184,7 +162,7 @@ export default async function HomePage() {
                 </a>
               </div>
               <div>
-                <p className="text-sm text-ink/45">Locație</p>
+                <p className="text-sm text-ink/45">Locatie</p>
                 <p className="mt-1 text-lg text-ink">{businessInfo.address}</p>
               </div>
             </div>
@@ -194,7 +172,7 @@ export default async function HomePage() {
           </div>
           <div className="overflow-hidden rounded-[2rem] border border-[#e3d6c3] bg-white shadow-panel">
             <iframe
-              title="Hartă Garajul cu Bere"
+              title="Harta Garajul cu Bere"
               src={mapsEmbedUrl}
               className="h-[320px] w-full"
               loading="lazy"

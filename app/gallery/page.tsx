@@ -1,8 +1,10 @@
 import { GalleryGrid } from "@/components/gallery-grid";
 import { Reveal } from "@/components/reveal";
-import { galleryItems } from "@/lib/seed-data";
+import { getGalleryItems } from "@/lib/gallery-store";
 
-export default function GalleryPage() {
+export default async function GalleryPage() {
+  const galleryItems = await getGalleryItems();
+
   return (
     <div className="section-shell py-10 pb-24 lg:py-16">
       <div className="page-intro">
@@ -13,7 +15,7 @@ export default function GalleryPage() {
         </p>
       </div>
       <Reveal className="mt-10">
-        <GalleryGrid items={[...galleryItems]} />
+        <GalleryGrid items={galleryItems} />
       </Reveal>
     </div>
   );
