@@ -16,29 +16,40 @@ const schema = z.object({
 });
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  await requireAdmin();
-  const { id } = await params;
-  const body = await request.json();
-  const parsed = schema.safeParse(body);
+  try {
+    await requireAdmin();
+    const { id } = await params;
+    const body = await request.json();
+    const parsed = schema.safeParse(body);
 
-  if (!parsed.success) {
-    const firstError = parsed.error.issues[0]?.message ?? "Formularul contine date invalide.";
+    if (!parsed.success) {
+      const firstError = parsed.error.issues[0]?.message ?? "Formularul contine date invalide.";
+      return NextResponse.json(
+        {
+          error: firstError,
+          fieldErrors: parsed.error.flatten().fieldErrors
+        },
+        { status: 400 }
+      );
+    }
+
+    const event = await updateStoredEvent(id, parsed.data);
+
+    if (!event) {
+      return NextResponse.json({ error: "Evenimentul nu a fost gasit." }, { status: 404 });
+    }
+
+    return NextResponse.json({ ok: true, event });
+  } catch (error) {
+    console.error("update event failed", error);
     return NextResponse.json(
       {
-        error: firstError,
-        fieldErrors: parsed.error.flatten().fieldErrors
+        error: "Evenimentul nu a putut fi actualizat pe server.",
+        fieldErrors: {}
       },
-      { status: 400 }
+      { status: 500 }
     );
   }
-
-  const event = await updateStoredEvent(id, parsed.data);
-
-  if (!event) {
-    return NextResponse.json({ error: "Evenimentul nu a fost gasit." }, { status: 404 });
-  }
-
-  return NextResponse.json({ ok: true, event });
 }
 
 export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {

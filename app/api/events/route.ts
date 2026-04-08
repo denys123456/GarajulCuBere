@@ -25,22 +25,33 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  await requireAdmin();
-  const body = await request.json();
-  const parsed = schema.safeParse(body);
+  try {
+    await requireAdmin();
+    const body = await request.json();
+    const parsed = schema.safeParse(body);
 
-  if (!parsed.success) {
-    const firstError = parsed.error.issues[0]?.message ?? "Formularul contine date invalide.";
+    if (!parsed.success) {
+      const firstError = parsed.error.issues[0]?.message ?? "Formularul contine date invalide.";
+      return NextResponse.json(
+        {
+          error: firstError,
+          fieldErrors: parsed.error.flatten().fieldErrors
+        },
+        { status: 400 }
+      );
+    }
+
+    const event = await createStoredEvent(parsed.data);
+
+    return NextResponse.json({ ok: true, event });
+  } catch (error) {
+    console.error("create event failed", error);
     return NextResponse.json(
       {
-        error: firstError,
-        fieldErrors: parsed.error.flatten().fieldErrors
+        error: "Evenimentul nu a putut fi salvat pe server.",
+        fieldErrors: {}
       },
-      { status: 400 }
+      { status: 500 }
     );
   }
-
-  const event = await createStoredEvent(parsed.data);
-
-  return NextResponse.json({ ok: true, event });
 }

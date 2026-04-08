@@ -3,7 +3,7 @@ import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { slugify } from "@/lib/utils";
 import { prisma } from "@/lib/prisma";
-import { safeCreateEvent, safeUpdateEvent } from "@/lib/event-records";
+import { safeCreateEvent, safeEventSelect, safeUpdateEvent, withEventDefaults } from "@/lib/event-records";
 
 export type StoredEvent = {
   id: string;
@@ -20,6 +20,7 @@ export type StoredEvent = {
 };
 
 const filePath = path.join(process.cwd(), "data", "events.json");
+const useDatabaseStore = process.env.VERCEL === "1" || process.env.NODE_ENV === "production";
 
 async function ensureEventsFile() {
   await mkdir(path.dirname(filePath), { recursive: true });
@@ -32,6 +33,29 @@ async function ensureEventsFile() {
 }
 
 export async function getStoredEvents() {
+  if (useDatabaseStore) {
+    try {
+      const events = await prisma.event.findMany({
+        select: safeEventSelect,
+        orderBy: {
+          date: "asc"
+        }
+      });
+
+      return events.map((event) => {
+        const normalized = withEventDefaults(event);
+
+        return {
+          ...normalized,
+          date: new Date(normalized.date).toISOString()
+        };
+      });
+    } catch (error) {
+      console.error("getStoredEvents prisma failed", error);
+      return [];
+    }
+  }
+
   await ensureEventsFile();
 
   try {
@@ -77,13 +101,9 @@ function normalizeEventPayload(payload: EventPayload, id?: string): StoredEvent 
 }
 
 export async function createStoredEvent(payload: EventPayload) {
-  const events = await getStoredEvents();
   const nextEvent = normalizeEventPayload(payload);
 
-  events.push(nextEvent);
-  await saveStoredEvents(events);
-
-  try {
+  if (useDatabaseStore) {
     await safeCreateEvent({
       id: nextEvent.id,
       slug: nextEvent.slug,
@@ -97,14 +117,42 @@ export async function createStoredEvent(payload: EventPayload) {
       location: nextEvent.location,
       address: nextEvent.address
     });
-  } catch (error) {
-    console.error("createStoredEvent prisma sync failed", error);
+
+    return nextEvent;
   }
+
+  const events = await getStoredEvents();
+  events.push(nextEvent);
+  await saveStoredEvents(events);
 
   return nextEvent;
 }
 
 export async function updateStoredEvent(id: string, payload: EventPayload) {
+  const nextEvent = normalizeEventPayload(payload, id);
+
+  if (useDatabaseStore) {
+    try {
+      await safeUpdateEvent(id, {
+        slug: nextEvent.slug,
+        title: nextEvent.title,
+        image: nextEvent.image,
+        description: nextEvent.description,
+        price: nextEvent.price,
+        date: new Date(nextEvent.date),
+        duration: nextEvent.duration,
+        startHour: nextEvent.startHour,
+        location: nextEvent.location,
+        address: nextEvent.address
+      });
+
+      return nextEvent;
+    } catch (error) {
+      console.error("updateStoredEvent prisma failed", error);
+      return null;
+    }
+  }
+
   const events = await getStoredEvents();
   const index = events.findIndex((event) => event.id === id);
 
@@ -112,31 +160,23 @@ export async function updateStoredEvent(id: string, payload: EventPayload) {
     return null;
   }
 
-  const nextEvent = normalizeEventPayload(payload, id);
   events[index] = nextEvent;
   await saveStoredEvents(events);
-
-  try {
-    await safeUpdateEvent(id, {
-      slug: nextEvent.slug,
-      title: nextEvent.title,
-      image: nextEvent.image,
-      description: nextEvent.description,
-      price: nextEvent.price,
-      date: new Date(nextEvent.date),
-      duration: nextEvent.duration,
-      startHour: nextEvent.startHour,
-      location: nextEvent.location,
-      address: nextEvent.address
-    });
-  } catch (error) {
-    console.error("updateStoredEvent prisma sync failed", error);
-  }
 
   return nextEvent;
 }
 
 export async function deleteStoredEvent(id: string) {
+  if (useDatabaseStore) {
+    try {
+      await prisma.event.delete({ where: { id } });
+      return true;
+    } catch (error) {
+      console.error("deleteStoredEvent prisma failed", error);
+      return false;
+    }
+  }
+
   const events = await getStoredEvents();
   const nextEvents = events.filter((event) => event.id !== id);
 
@@ -146,21 +186,61 @@ export async function deleteStoredEvent(id: string) {
 
   await saveStoredEvents(nextEvents);
 
-  try {
-    await prisma.event.delete({ where: { id } });
-  } catch (error) {
-    console.error("deleteStoredEvent prisma sync failed", error);
-  }
-
   return true;
 }
 
 export async function getStoredEventById(id: string) {
+  if (useDatabaseStore) {
+    try {
+      const event = await prisma.event.findUnique({
+        where: { id },
+        select: safeEventSelect
+      });
+
+      if (!event) {
+        return null;
+      }
+
+      const normalized = withEventDefaults(event);
+
+      return {
+        ...normalized,
+        date: new Date(normalized.date).toISOString()
+      };
+    } catch (error) {
+      console.error("getStoredEventById prisma failed", error);
+      return null;
+    }
+  }
+
   const events = await getStoredEvents();
   return events.find((event) => event.id === id) ?? null;
 }
 
 export async function getStoredEventBySlug(slug: string) {
+  if (useDatabaseStore) {
+    try {
+      const event = await prisma.event.findUnique({
+        where: { slug },
+        select: safeEventSelect
+      });
+
+      if (!event) {
+        return null;
+      }
+
+      const normalized = withEventDefaults(event);
+
+      return {
+        ...normalized,
+        date: new Date(normalized.date).toISOString()
+      };
+    } catch (error) {
+      console.error("getStoredEventBySlug prisma failed", error);
+      return null;
+    }
+  }
+
   const events = await getStoredEvents();
   return events.find((event) => event.slug === slug) ?? null;
 }
