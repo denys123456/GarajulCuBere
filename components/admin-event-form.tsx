@@ -23,6 +23,7 @@ type AdminEventFormProps = {
 export function AdminEventForm({ mode, event }: AdminEventFormProps) {
   const router = useRouter();
   const [error, setError] = useState("");
+  const [details, setDetails] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState(event?.image ?? "");
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -36,6 +37,7 @@ export function AdminEventForm({ mode, event }: AdminEventFormProps) {
 
     setUploadingImage(true);
     setError("");
+    setDetails([]);
 
     const formData = new FormData();
     formData.append("file", file);
@@ -60,6 +62,7 @@ export function AdminEventForm({ mode, event }: AdminEventFormProps) {
     formEvent.preventDefault();
     setLoading(true);
     setError("");
+    setDetails([]);
 
     const formData = new FormData(formEvent.currentTarget);
     const payload = {
@@ -76,6 +79,11 @@ export function AdminEventForm({ mode, event }: AdminEventFormProps) {
 
     if (!response.ok) {
       setError(data?.error ?? "A aparut o eroare.");
+      setDetails(
+        Object.values((data?.fieldErrors ?? {}) as Record<string, string[]>)
+          .flat()
+          .filter(Boolean)
+      );
       setLoading(false);
       return;
     }
@@ -90,6 +98,7 @@ export function AdminEventForm({ mode, event }: AdminEventFormProps) {
     }
 
     setLoading(true);
+    setDetails([]);
     const response = await fetch(`/api/events/${event.id}`, { method: "DELETE" });
     const data = await response.json().catch(() => null);
 
@@ -172,7 +181,18 @@ export function AdminEventForm({ mode, event }: AdminEventFormProps) {
           </label>
         </div>
 
-        {error && <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+        {error && (
+          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <p className="font-medium">{error}</p>
+            {details.length > 0 && (
+              <div className="mt-2 space-y-1 text-red-700/90">
+                {details.map((detail) => (
+                  <p key={detail}>• {detail}</p>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="flex flex-wrap gap-3">
           <button type="submit" disabled={loading || uploadingImage} className="cta-primary">
