@@ -18,9 +18,14 @@ async function ensureGalleryStore() {
 
 export async function getGalleryItems() {
   await ensureGalleryStore();
-  const file = await readFile(dataFilePath, "utf8");
-  const items = JSON.parse(file) as GalleryItem[];
-  return items;
+  try {
+    const file = await readFile(dataFilePath, "utf8");
+    const items = JSON.parse(file) as GalleryItem[];
+    return items;
+  } catch (error) {
+    console.error("getGalleryItems failed", error);
+    return [];
+  }
 }
 
 async function saveGalleryItems(items: GalleryItem[]) {

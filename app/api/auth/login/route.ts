@@ -10,29 +10,34 @@ const schema = z.object({
 });
 
 export async function POST(request: Request) {
-  await ensureSeedData();
-  const body = await request.json();
-  const parsed = schema.safeParse(body);
+  try {
+    await ensureSeedData();
+    const body = await request.json();
+    const parsed = schema.safeParse(body);
 
-  if (!parsed.success) {
-    return NextResponse.json({ error: "Datele introduse nu sunt valide." }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Datele introduse nu sunt valide." }, { status: 400 });
+    }
+
+    const user = await prisma.user.findUnique({ where: { email: parsed.data.email } });
+
+    if (!user || !(await verifyPassword(parsed.data.password, user.passwordHash))) {
+      return NextResponse.json({ error: "Email sau parola incorecte." }, { status: 401 });
+    }
+
+    await createSession({
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      fullName: user.fullName
+    });
+
+    return NextResponse.json({
+      ok: true,
+      redirectTo: user.role === "ADMIN" ? "/admin" : "/account"
+    });
+  } catch (error) {
+    console.error("login failed", error);
+    return NextResponse.json({ error: "Autentificarea nu este disponibila momentan." }, { status: 500 });
   }
-
-  const user = await prisma.user.findUnique({ where: { email: parsed.data.email } });
-
-  if (!user || !(await verifyPassword(parsed.data.password, user.passwordHash))) {
-    return NextResponse.json({ error: "Email sau parolă incorecte." }, { status: 401 });
-  }
-
-  await createSession({
-    sub: user.id,
-    email: user.email,
-    role: user.role,
-    fullName: user.fullName
-  });
-
-  return NextResponse.json({
-    ok: true,
-    redirectTo: user.role === "ADMIN" ? "/admin" : "/account"
-  });
 }

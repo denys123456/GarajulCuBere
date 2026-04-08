@@ -4,23 +4,33 @@ import { ensureSeedData } from "@/lib/bootstrap";
 import { businessInfo } from "@/lib/business-data";
 import { getDrinkMenuCategories } from "@/lib/drinks-menu";
 import { isPastEvent } from "@/lib/event-utils";
-import { safeEventSelect, withEventDefaults } from "@/lib/event-records";
+import { SelectedEventRecord, safeEventSelect, withEventDefaults } from "@/lib/event-records";
 import { prisma } from "@/lib/prisma";
 import { EventCard } from "@/components/event-card";
 import { Reveal } from "@/components/reveal";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   await ensureSeedData();
 
-  const [featuredCategories, events] = await Promise.all([
-    getDrinkMenuCategories().then((categories) => categories.slice(0, 6)),
-    prisma.event.findMany({
-      select: safeEventSelect,
-      orderBy: {
-        date: "asc"
-      }
-    })
-  ]);
+  let featuredCategories: Awaited<ReturnType<typeof getDrinkMenuCategories>> = [];
+  let events: SelectedEventRecord[] = [];
+
+  try {
+    [featuredCategories, events] = await Promise.all([
+      getDrinkMenuCategories().then((categories) => categories.slice(0, 6)),
+      prisma.event.findMany({
+        select: safeEventSelect,
+        orderBy: {
+          date: "asc"
+        }
+      })
+    ]);
+  } catch (error) {
+    console.error("HomePage data load failed", error);
+  }
+
   const normalizedEvents = events.map(withEventDefaults);
 
   const activeEvents = normalizedEvents.filter((event) => !isPastEvent(event));

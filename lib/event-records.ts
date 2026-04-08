@@ -15,14 +15,16 @@ export const safeEventSelect = {
   updatedAt: true
 } satisfies Prisma.EventSelect;
 
-export type SafeEventRecord = Prisma.EventGetPayload<{
+export type SelectedEventRecord = Prisma.EventGetPayload<{
   select: typeof safeEventSelect;
-}> & {
+}>;
+
+export type SafeEventRecord = SelectedEventRecord & {
   location: string;
   address: string;
 };
 
-export function withEventDefaults<T extends Prisma.EventGetPayload<{ select: typeof safeEventSelect }>>(event: T): SafeEventRecord {
+export function withEventDefaults<T extends SelectedEventRecord>(event: T): SafeEventRecord {
   return {
     ...event,
     location: "",
@@ -30,7 +32,7 @@ export function withEventDefaults<T extends Prisma.EventGetPayload<{ select: typ
   };
 }
 
-export function withOptionalEventDefaults<T extends Prisma.EventGetPayload<{ select: typeof safeEventSelect }> | null>(event: T) {
+export function withOptionalEventDefaults<T extends SelectedEventRecord | null>(event: T) {
   if (!event) {
     return null;
   }

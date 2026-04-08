@@ -74,33 +74,38 @@ export async function getCurrentUser() {
     return null;
   }
 
-  return prisma.user.findUnique({
-    where: { id: session.sub },
-    include: {
-      tickets: {
-        include: {
-          event: {
-            select: safeEventSelect
+  try {
+    return await prisma.user.findUnique({
+      where: { id: session.sub },
+      include: {
+        tickets: {
+          include: {
+            event: {
+              select: safeEventSelect
+            }
+          },
+          orderBy: {
+            purchasedAt: "desc"
           }
-        },
-        orderBy: {
-          purchasedAt: "desc"
         }
       }
-    }
-  }).then((user) => {
-    if (!user) {
-      return null;
-    }
+    }).then((user) => {
+      if (!user) {
+        return null;
+      }
 
-    return {
-      ...user,
-      tickets: user.tickets.map((ticket) => ({
-        ...ticket,
-        event: withEventDefaults(ticket.event)
-      }))
-    };
-  });
+      return {
+        ...user,
+        tickets: user.tickets.map((ticket) => ({
+          ...ticket,
+          event: withEventDefaults(ticket.event)
+        }))
+      };
+    });
+  } catch (error) {
+    console.error("getCurrentUser failed", error);
+    return null;
+  }
 }
 
 export async function requireUser() {

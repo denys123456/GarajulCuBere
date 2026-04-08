@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { ensureSeedData } from "@/lib/bootstrap";
 import { isPastEvent } from "@/lib/event-utils";
-import { safeEventSelect, withEventDefaults } from "@/lib/event-records";
+import { SelectedEventRecord, safeEventSelect, withEventDefaults } from "@/lib/event-records";
 import { getGalleryItems } from "@/lib/gallery-store";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -60,28 +60,55 @@ export default async function AdminPage() {
   await ensureSeedData();
   await requireAdmin();
 
-  const [events, tickets, galleryItems] = await Promise.all([
-    prisma.event.findMany({
-      select: safeEventSelect,
-      orderBy: { date: "asc" }
-    }),
-    prisma.ticket.findMany({
-      include: {
-        event: {
-          select: {
-            id: true,
-            title: true,
-            date: true
-          }
+  let events: SelectedEventRecord[] = [];
+  let tickets: Array<{
+    id: string;
+    code: string;
+    buyerName: string;
+    buyerEmail: string;
+    cnp: string;
+    status: "CONFIRMED";
+    purchasedAt: Date;
+    eventId: string;
+    userId: string;
+    event: {
+      id: string;
+      title: string;
+      date: Date;
+    };
+    user: {
+      email: string;
+    };
+  }> = [];
+  let galleryItems: Awaited<ReturnType<typeof getGalleryItems>> = [];
+
+  try {
+    [events, tickets, galleryItems] = await Promise.all([
+      prisma.event.findMany({
+        select: safeEventSelect,
+        orderBy: { date: "asc" }
+      }),
+      prisma.ticket.findMany({
+        include: {
+          event: {
+            select: {
+              id: true,
+              title: true,
+              date: true
+            }
+          },
+          user: true
         },
-        user: true
-      },
-      orderBy: {
-        purchasedAt: "desc"
-      }
-    }),
-    getGalleryItems()
-  ]);
+        orderBy: {
+          purchasedAt: "desc"
+        }
+      }),
+      getGalleryItems()
+    ]);
+  } catch (error) {
+    console.error("AdminPage data load failed", error);
+  }
+
   const normalizedEvents = events.map(withEventDefaults);
 
   const activeEvents = normalizedEvents.filter((event) => !isPastEvent(event));

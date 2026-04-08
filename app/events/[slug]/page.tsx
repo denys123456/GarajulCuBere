@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Clock3, CalendarDays, MapPin, Ticket } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 import { ensureSeedData } from "@/lib/bootstrap";
-import { safeEventSelect, withOptionalEventDefaults } from "@/lib/event-records";
+import { SafeEventRecord, safeEventSelect, withOptionalEventDefaults } from "@/lib/event-records";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { TicketPurchaseCard } from "@/components/ticket-purchase-card";
@@ -11,10 +11,17 @@ import { TicketPurchaseCard } from "@/components/ticket-purchase-card";
 export default async function EventDetailsPage({ params }: { params: Promise<{ slug: string }> }) {
   await ensureSeedData();
   const { slug } = await params;
-  const [event, user] = await Promise.all([
-    prisma.event.findUnique({ where: { slug }, select: safeEventSelect }).then(withOptionalEventDefaults),
-    getCurrentUser()
-  ]);
+  let event: SafeEventRecord | null = null;
+  let user: Awaited<ReturnType<typeof getCurrentUser>> = null;
+
+  try {
+    [event, user] = await Promise.all([
+      prisma.event.findUnique({ where: { slug }, select: safeEventSelect }).then(withOptionalEventDefaults),
+      getCurrentUser()
+    ]);
+  } catch (error) {
+    console.error("EventDetailsPage load failed", error);
+  }
 
   if (!event) {
     notFound();

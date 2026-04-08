@@ -1,6 +1,6 @@
 import { ensureSeedData } from "@/lib/bootstrap";
 import { isPastEvent } from "@/lib/event-utils";
-import { safeEventSelect, withEventDefaults } from "@/lib/event-records";
+import { SelectedEventRecord, safeEventSelect, withEventDefaults } from "@/lib/event-records";
 import { prisma } from "@/lib/prisma";
 import { EventCard } from "@/components/event-card";
 import { Reveal } from "@/components/reveal";
@@ -8,12 +8,19 @@ import { Reveal } from "@/components/reveal";
 export default async function EventsPage() {
   await ensureSeedData();
 
-  const events = await prisma.event.findMany({
-    select: safeEventSelect,
-    orderBy: {
-      date: "asc"
-    }
-  });
+  let events: SelectedEventRecord[] = [];
+
+  try {
+    events = await prisma.event.findMany({
+      select: safeEventSelect,
+      orderBy: {
+        date: "asc"
+      }
+    });
+  } catch (error) {
+    console.error("EventsPage data load failed", error);
+  }
+
   const normalizedEvents = events.map(withEventDefaults);
 
   const activeEvents = normalizedEvents.filter((event) => !isPastEvent(event));
