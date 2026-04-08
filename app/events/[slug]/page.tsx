@@ -3,22 +3,18 @@ import { notFound } from "next/navigation";
 import { Clock3, CalendarDays, MapPin, Ticket } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 import { ensureSeedData } from "@/lib/bootstrap";
-import { SafeEventRecord, safeEventSelect, withOptionalEventDefaults } from "@/lib/event-records";
-import { prisma } from "@/lib/prisma";
+import { getStoredEventBySlug } from "@/lib/events-store";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { TicketPurchaseCard } from "@/components/ticket-purchase-card";
 
 export default async function EventDetailsPage({ params }: { params: Promise<{ slug: string }> }) {
   await ensureSeedData();
   const { slug } = await params;
-  let event: SafeEventRecord | null = null;
+  let event = null;
   let user: Awaited<ReturnType<typeof getCurrentUser>> = null;
 
   try {
-    [event, user] = await Promise.all([
-      prisma.event.findUnique({ where: { slug }, select: safeEventSelect }).then(withOptionalEventDefaults),
-      getCurrentUser()
-    ]);
+    [event, user] = await Promise.all([getStoredEventBySlug(slug), getCurrentUser()]);
   } catch (error) {
     console.error("EventDetailsPage load failed", error);
   }
@@ -44,7 +40,7 @@ export default async function EventDetailsPage({ params }: { params: Promise<{ s
             <div className="mt-8 grid gap-3 md:grid-cols-3">
               <div className="rounded-2xl bg-white p-4 text-sm text-ink/75 shadow-[0_8px_20px_rgba(67,46,21,0.06)]">
                 <CalendarDays className="mb-3 h-5 w-5 text-amber" />
-                {formatDate(event.date)}
+                {formatDate(new Date(event.date))}
               </div>
               <div className="rounded-2xl bg-white p-4 text-sm text-ink/75 shadow-[0_8px_20px_rgba(67,46,21,0.06)]">
                 <Clock3 className="mb-3 h-5 w-5 text-amber" />

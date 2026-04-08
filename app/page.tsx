@@ -3,9 +3,8 @@ import { ArrowRight, Facebook, Instagram, Phone, Sparkles } from "lucide-react";
 import { ensureSeedData } from "@/lib/bootstrap";
 import { businessInfo } from "@/lib/business-data";
 import { getDrinkMenuCategories } from "@/lib/drinks-menu";
+import { getStoredEvents, type StoredEvent } from "@/lib/events-store";
 import { isPastEvent } from "@/lib/event-utils";
-import { SelectedEventRecord, safeEventSelect, withEventDefaults } from "@/lib/event-records";
-import { prisma } from "@/lib/prisma";
 import { EventCard } from "@/components/event-card";
 import { Reveal } from "@/components/reveal";
 
@@ -15,26 +14,19 @@ export default async function HomePage() {
   await ensureSeedData();
 
   let featuredCategories: Awaited<ReturnType<typeof getDrinkMenuCategories>> = [];
-  let events: SelectedEventRecord[] = [];
+  let events: StoredEvent[] = [];
 
   try {
     [featuredCategories, events] = await Promise.all([
       getDrinkMenuCategories().then((categories) => categories.slice(0, 6)),
-      prisma.event.findMany({
-        select: safeEventSelect,
-        orderBy: {
-          date: "asc"
-        }
-      })
+      getStoredEvents()
     ]);
   } catch (error) {
     console.error("HomePage data load failed", error);
   }
 
-  const normalizedEvents = events.map(withEventDefaults);
-
-  const activeEvents = normalizedEvents.filter((event) => !isPastEvent(event));
-  const pastEvents = normalizedEvents.filter((event) => isPastEvent(event)).sort((a, b) => +new Date(b.date) - +new Date(a.date));
+  const activeEvents = events.filter((event) => !isPastEvent(event));
+  const pastEvents = events.filter((event) => isPastEvent(event)).sort((a, b) => +new Date(b.date) - +new Date(a.date));
   const mapsEmbedUrl =
     "https://www.google.com/maps?q=Strada+Luceaf%C4%83rului+617400+S%C4%83b%C4%83oani&z=15&output=embed";
 
@@ -143,7 +135,7 @@ export default async function HomePage() {
             ) : (
               <div className="mt-8 grid gap-6 lg:grid-cols-2">
                 {activeEvents.slice(0, 2).map((event) => (
-                  <EventCard key={event.id} event={event} />
+                  <EventCard key={event.id} event={{ ...event, date: new Date(event.date) }} />
                 ))}
               </div>
             )}
@@ -155,7 +147,7 @@ export default async function HomePage() {
             {pastEvents.length > 0 && (
               <div className="mt-8 grid gap-6 lg:grid-cols-2">
                 {pastEvents.slice(0, 2).map((event) => (
-                  <EventCard key={event.id} event={event} />
+                  <EventCard key={event.id} event={{ ...event, date: new Date(event.date) }} />
                 ))}
               </div>
             )}

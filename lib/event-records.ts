@@ -41,6 +41,7 @@ export function withOptionalEventDefaults<T extends SelectedEventRecord | null>(
 }
 
 type EventWriteInput = {
+  id?: string;
   slug: string;
   title: string;
   image: string;
@@ -55,6 +56,7 @@ type EventWriteInput = {
 
 function getLegacyEventWriteData(input: EventWriteInput) {
   return {
+    ...(input.id ? { id: input.id } : {}),
     slug: input.slug,
     title: input.title,
     image: input.image,

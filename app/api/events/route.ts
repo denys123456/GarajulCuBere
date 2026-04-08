@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
-import { safeCreateEvent, safeEventSelect, withEventDefaults } from "@/lib/event-records";
-import { prisma } from "@/lib/prisma";
-import { slugify } from "@/lib/utils";
+import { createStoredEvent, getStoredEvents } from "@/lib/events-store";
 
 const schema = z.object({
   title: z.string().min(3),
@@ -18,18 +16,11 @@ const schema = z.object({
 });
 
 export async function GET() {
-  await requireAdmin();
-
-  const events = await prisma.event.findMany({
-    select: safeEventSelect,
-    orderBy: {
-      date: "asc"
-    }
-  });
+  const events = await getStoredEvents();
 
   return NextResponse.json({
     ok: true,
-    events: events.map(withEventDefaults)
+    events
   });
 }
 
@@ -42,11 +33,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Completează formularul corect." }, { status: 400 });
   }
 
-  const event = await safeCreateEvent({
-    ...parsed.data,
-    slug: slugify(parsed.data.title),
-    date: new Date(parsed.data.date)
-  });
+  const event = await createStoredEvent(parsed.data);
 
   return NextResponse.json({ ok: true, event });
 }

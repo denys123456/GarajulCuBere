@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { ensureSeedData } from "@/lib/bootstrap";
-import { SelectedEventRecord, safeEventSelect, withEventDefaults } from "@/lib/event-records";
+import { getStoredEvents, type StoredEvent } from "@/lib/events-store";
 import { getGalleryItems } from "@/lib/gallery-store";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
@@ -12,7 +12,7 @@ export default async function AdminPage() {
   await ensureSeedData();
   await requireAdmin();
 
-  let events: SelectedEventRecord[] = [];
+  let events: StoredEvent[] = [];
   let tickets: Array<{
     id: string;
     code: string;
@@ -36,10 +36,7 @@ export default async function AdminPage() {
 
   try {
     [events, tickets, galleryItems] = await Promise.all([
-      prisma.event.findMany({
-        select: safeEventSelect,
-        orderBy: { date: "asc" }
-      }),
+      getStoredEvents(),
       prisma.ticket.findMany({
         include: {
           event: {
@@ -65,8 +62,6 @@ export default async function AdminPage() {
     console.error("AdminPage data load failed", error);
   }
 
-  const normalizedEvents = events.map(withEventDefaults);
-
   return (
     <div className="section-shell py-10 pb-24 lg:py-16">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
@@ -80,7 +75,7 @@ export default async function AdminPage() {
       </div>
 
       <div className="grid gap-6">
-        <AdminEventsManager initialEvents={normalizedEvents} />
+        <AdminEventsManager initialEvents={events} />
         <AdminGalleryManager items={galleryItems} />
 
         <section className="glass-panel rounded-[2rem] p-8">

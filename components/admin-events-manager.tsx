@@ -4,14 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { isPastEvent } from "@/lib/event-utils";
 import { formatCurrency, formatDate } from "@/lib/utils";
-
-type EventItem = {
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-  date: string | Date;
-};
+import type { StoredEvent } from "@/lib/events-store";
 
 function EventSection({
   title,
@@ -20,7 +13,7 @@ function EventSection({
   onDelete
 }: {
   title: string;
-  events: EventItem[];
+  events: StoredEvent[];
   deletingId: string | null;
   onDelete: (id: string) => Promise<void>;
 }) {
@@ -40,7 +33,7 @@ function EventSection({
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <h3 className="font-display text-3xl font-semibold text-ink">{event.title}</h3>
-                <p className="mt-1 text-sm text-ink/52">{formatDate(event.date)}</p>
+                <p className="mt-1 text-sm text-ink/52">{formatDate(new Date(event.date))}</p>
               </div>
               <div className="flex items-center gap-3">
                 <span className="rounded-full bg-[#fbf5eb] px-4 py-2 text-sm font-medium text-amber">
@@ -67,7 +60,7 @@ function EventSection({
   );
 }
 
-export function AdminEventsManager({ initialEvents }: { initialEvents: EventItem[] }) {
+export function AdminEventsManager({ initialEvents }: { initialEvents: StoredEvent[] }) {
   const [events, setEvents] = useState(initialEvents);
   const [loading, setLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -104,15 +97,9 @@ export function AdminEventsManager({ initialEvents }: { initialEvents: EventItem
     };
   }, []);
 
-  const activeEvents = useMemo(
-    () => events.filter((event) => !isPastEvent({ date: event.date, startHour: "00:00" })),
-    [events]
-  );
+  const activeEvents = useMemo(() => events.filter((event) => !isPastEvent(event)), [events]);
   const pastEvents = useMemo(
-    () =>
-      events
-        .filter((event) => isPastEvent({ date: event.date, startHour: "00:00" }))
-        .sort((left, right) => +new Date(right.date) - +new Date(left.date)),
+    () => events.filter((event) => isPastEvent(event)).sort((left, right) => +new Date(right.date) - +new Date(left.date)),
     [events]
   );
 

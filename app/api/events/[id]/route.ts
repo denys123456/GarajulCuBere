@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
-import { safeUpdateEvent } from "@/lib/event-records";
-import { prisma } from "@/lib/prisma";
-import { slugify } from "@/lib/utils";
+import { deleteStoredEvent, updateStoredEvent } from "@/lib/events-store";
 
 const schema = z.object({
   title: z.string().min(3),
@@ -27,11 +25,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "Datele nu sunt valide." }, { status: 400 });
   }
 
-  const event = await safeUpdateEvent(id, {
-    ...parsed.data,
-    slug: slugify(parsed.data.title),
-    date: new Date(parsed.data.date)
-  });
+  const event = await updateStoredEvent(id, parsed.data);
+
+  if (!event) {
+    return NextResponse.json({ error: "Evenimentul nu a fost gasit." }, { status: 404 });
+  }
 
   return NextResponse.json({ ok: true, event });
 }
@@ -39,8 +37,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
   const { id } = await params;
+  const deleted = await deleteStoredEvent(id);
 
-  await prisma.event.delete({ where: { id } });
+  if (!deleted) {
+    return NextResponse.json({ error: "Evenimentul nu a fost gasit." }, { status: 404 });
+  }
 
   return NextResponse.json({ ok: true });
 }

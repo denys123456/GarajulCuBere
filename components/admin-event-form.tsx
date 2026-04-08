@@ -12,7 +12,7 @@ type AdminEventFormProps = {
     image: string;
     description: string;
     price: number;
-    date: Date;
+    date: Date | string;
     duration: string;
     startHour: string;
     location?: string | null;
@@ -37,12 +37,12 @@ export function AdminEventForm({ mode, event }: AdminEventFormProps) {
     setUploadingImage(true);
     setError("");
 
-    const uploadData = new FormData();
-    uploadData.append("file", file);
+    const formData = new FormData();
+    formData.append("file", file);
 
     const response = await fetch("/api/upload", {
       method: "POST",
-      body: uploadData
+      body: formData
     });
     const data = await response.json().catch(() => null);
 
@@ -72,7 +72,6 @@ export function AdminEventForm({ mode, event }: AdminEventFormProps) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
-
     const data = await response.json().catch(() => null);
 
     if (!response.ok) {
@@ -92,9 +91,10 @@ export function AdminEventForm({ mode, event }: AdminEventFormProps) {
 
     setLoading(true);
     const response = await fetch(`/api/events/${event.id}`, { method: "DELETE" });
+    const data = await response.json().catch(() => null);
 
     if (!response.ok) {
-      setError("Nu am putut sterge evenimentul.");
+      setError(data?.error ?? "Nu am putut sterge evenimentul.");
       setLoading(false);
       return;
     }

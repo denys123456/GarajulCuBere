@@ -1,13 +1,12 @@
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { AdminEventForm } from "@/components/admin-event-form";
-import { safeEventSelect, withOptionalEventDefaults } from "@/lib/event-records";
-import { prisma } from "@/lib/prisma";
+import { getStoredEventById } from "@/lib/events-store";
 
 export default async function EditAdminEventPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
   const { id } = await params;
-  const event = await prisma.event.findUnique({ where: { id }, select: safeEventSelect }).then(withOptionalEventDefaults);
+  const event = await getStoredEventById(id);
 
   if (!event) {
     notFound();
