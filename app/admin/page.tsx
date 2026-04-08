@@ -2,11 +2,9 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { ensureSeedData } from "@/lib/bootstrap";
 import { getStoredEvents, type StoredEvent } from "@/lib/events-store";
-import { getGalleryItems } from "@/lib/gallery-store";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
 import { AdminEventsManager } from "@/components/admin-events-manager";
-import { AdminGalleryManager } from "@/components/admin-gallery-manager";
 
 export default async function AdminPage() {
   await ensureSeedData();
@@ -32,10 +30,8 @@ export default async function AdminPage() {
       email: string;
     };
   }> = [];
-  let galleryItems: Awaited<ReturnType<typeof getGalleryItems>> = [];
-
   try {
-    [events, tickets, galleryItems] = await Promise.all([
+    [events, tickets] = await Promise.all([
       getStoredEvents(),
       prisma.ticket.findMany({
         include: {
@@ -55,8 +51,7 @@ export default async function AdminPage() {
         orderBy: {
           purchasedAt: "desc"
         }
-      }),
-      getGalleryItems()
+      })
     ]);
   } catch (error) {
     console.error("AdminPage data load failed", error);
@@ -76,7 +71,6 @@ export default async function AdminPage() {
 
       <div className="grid gap-6">
         <AdminEventsManager initialEvents={events} />
-        <AdminGalleryManager items={galleryItems} />
 
         <section className="glass-panel rounded-[2rem] p-8">
           <div className="flex items-center justify-between gap-4">

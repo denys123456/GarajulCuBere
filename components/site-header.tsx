@@ -11,6 +11,7 @@ const navigation = [
   { href: "/", label: "Acasă" },
   { href: "/menu", label: "Meniu" },
   { href: "/events", label: "Evenimente" },
+  { href: "/gallery", label: "Galerie" },
   { href: "/contact", label: "Contact" }
 ];
 
