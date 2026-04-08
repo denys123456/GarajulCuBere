@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import type { DrinkMenuCategory } from "@/lib/drinks-menu";
+import type { DrinkMenuCategory, DrinkMenuItem } from "@/lib/drinks-menu";
 
 export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -14,11 +14,15 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
     startX: number;
     startOffset: number;
   } | null>(null);
+  const pointerDistanceRef = useRef(0);
   const [itemsPerView, setItemsPerView] = useState(1);
   const [activeIndex, setActiveIndex] = useState(0);
   const [cardStep, setCardStep] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState<number | null>(null);
+  const [startY, setStartY] = useState<number | null>(null);
+  const [selectedItem, setSelectedItem] = useState<DrinkMenuItem | null>(null);
   const maxIndex = Math.max(0, category.items.length - itemsPerView);
 
   useEffect(() => {
@@ -79,6 +83,24 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
     setDragOffset(0);
   }, [maxIndex]);
 
+  useEffect(() => {
+    if (!selectedItem) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSelectedItem(null);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedItem]);
+
   const moveToIndex = (index: number) => {
     const nextIndex = Math.max(0, Math.min(index, maxIndex));
     setDragOffset(0);
@@ -125,6 +147,9 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
             startX: event.clientX,
             startOffset: dragOffset
           };
+          pointerDistanceRef.current = 0;
+          setStartX(event.clientX);
+          setStartY(event.clientY);
           setIsDragging(true);
           event.currentTarget.setPointerCapture(event.pointerId);
         }}
@@ -133,8 +158,10 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
             return;
           }
 
-          const delta = event.clientX - dragStateRef.current.startX;
-          setDragOffset(dragStateRef.current.startOffset + delta);
+          const deltaX = event.clientX - dragStateRef.current.startX;
+          const deltaY = startY === null ? 0 : event.clientY - startY;
+          pointerDistanceRef.current = Math.hypot(deltaX, deltaY);
+          setDragOffset(dragStateRef.current.startOffset + deltaX);
         }}
         onPointerUp={(event) => {
           if (!dragStateRef.current || dragStateRef.current.pointerId !== event.pointerId) {
@@ -142,10 +169,24 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
           }
 
           const projectedIndex = cardStep > 0 ? Math.round((-trackTranslate) / cardStep) : activeIndex;
+          const clickedCard = (event.target as HTMLElement).closest<HTMLElement>("[data-menu-card-index]");
+          const wasClick = pointerDistanceRef.current < 8;
           dragStateRef.current = null;
+          pointerDistanceRef.current = 0;
+          setStartX(null);
+          setStartY(null);
           setIsDragging(false);
           event.currentTarget.releasePointerCapture(event.pointerId);
           moveToIndex(projectedIndex);
+
+          if (wasClick && clickedCard) {
+            const indexValue = Number.parseInt(clickedCard.dataset.menuCardIndex ?? "", 10);
+            const item = category.items[indexValue];
+
+            if (item) {
+              setSelectedItem(item);
+            }
+          }
         }}
         onPointerCancel={(event) => {
           if (!dragStateRef.current || dragStateRef.current.pointerId !== event.pointerId) {
@@ -153,6 +194,9 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
           }
 
           dragStateRef.current = null;
+          pointerDistanceRef.current = 0;
+          setStartX(null);
+          setStartY(null);
           setIsDragging(false);
           moveToIndex(activeIndex);
         }}
@@ -168,6 +212,7 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
             <motion.article
               key={item.imageSrc}
               data-menu-card
+              data-menu-card-index={index}
               ref={index === 0 ? (node) => {
                 firstCardRef.current = node;
               } : undefined}
@@ -198,6 +243,45 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
           ))}
         </div>
       </div>
+
+      {selectedItem && (
+        <div
+          className="fixed inset-0 z-[90] flex items-center justify-center bg-[#2f241c]/60 p-4"
+          onClick={() => setSelectedItem(null)}
+        >
+          <div
+            className="relative w-full max-w-xl rounded-[1.75rem] border border-[#e5d8c5] bg-white p-4 opacity-100 shadow-[0_28px_60px_rgba(47,36,28,0.18)] transition-[transform,opacity] duration-250 ease-out"
+            style={{ transform: "translateY(0) scale(1)", opacity: 1, transition: "transform 0.25s ease-out, opacity 0.25s ease-out" }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setSelectedItem(null)}
+              className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#e5d8c5] bg-white text-ink"
+              aria-label={`Închide ${selectedItem.name}`}
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <div className="relative overflow-hidden rounded-[1.25rem] bg-[linear-gradient(180deg,#fbf8f3,#efe5d7)]">
+              <div className="relative h-[22rem]">
+                <Image
+                  src={selectedItem.imageSrc}
+                  alt={selectedItem.name}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 42rem"
+                  className="object-cover"
+                />
+              </div>
+            </div>
+
+            <div className="px-2 pb-2 pt-5">
+              <p className="font-display text-3xl font-semibold text-ink">{selectedItem.name}</p>
+              <p className="mt-2 text-sm leading-7 text-ink/58">{category.title}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
