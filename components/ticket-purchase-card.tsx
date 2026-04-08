@@ -11,7 +11,6 @@ type TicketPurchaseCardProps = {
 export function TicketPurchaseCard({ eventId, requiresAuth }: TicketPurchaseCardProps) {
   const router = useRouter();
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -24,29 +23,25 @@ export function TicketPurchaseCard({ eventId, requiresAuth }: TicketPurchaseCard
 
     setLoading(true);
     setError("");
-    setSuccess("");
 
     const formData = new FormData(event.currentTarget);
     const payload = Object.fromEntries(formData.entries());
 
-    const response = await fetch("/api/tickets", {
+    const response = await fetch("/api/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...payload, eventId })
+      body: JSON.stringify({ ...payload, eventId, quantity: 1 })
     });
 
-    const data = await response.json();
+    const data = await response.json().catch(() => null);
 
-    if (!response.ok) {
-      setError(data.error ?? "Checkout failed");
+    if (!response.ok || !data?.url) {
+      setError(data?.error ?? "Checkout Stripe indisponibil.");
       setLoading(false);
       return;
     }
 
-    setSuccess("Biletul a fost salvat în contul tău.");
-    setLoading(false);
-    router.push("/account");
-    router.refresh();
+    window.location.href = data.url;
   }
 
   const inputClass =
@@ -57,7 +52,7 @@ export function TicketPurchaseCard({ eventId, requiresAuth }: TicketPurchaseCard
       <p className="section-kicker">Buy Ticket</p>
       <h2 className="mt-4 font-display text-4xl font-semibold tracking-[-0.04em] text-ink">Secure checkout</h2>
       <p className="mt-3 text-sm leading-7 text-ink/58">
-        Completarea datelor este obligatorie. Biletul este asociat contului autentificat și apare imediat în My Tickets.
+        Completeaza datele si continua plata in Stripe. Biletul apare in cont doar dupa confirmarea platii.
       </p>
 
       <form onSubmit={onSubmit} className="mt-6 grid gap-4">
@@ -75,14 +70,9 @@ export function TicketPurchaseCard({ eventId, requiresAuth }: TicketPurchaseCard
         </label>
 
         {error && <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
-        {success && (
-          <p className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-            {success}
-          </p>
-        )}
 
         <button type="submit" disabled={loading} className="cta-primary disabled:opacity-60">
-          {requiresAuth ? "Login pentru cumpărare" : loading ? "Se procesează..." : "Buy ticket"}
+          {requiresAuth ? "Login pentru cumpărare" : loading ? "Se procesează..." : "Cumpără bilet"}
         </button>
       </form>
     </div>

@@ -1,5 +1,4 @@
-import { GalleryGrid } from "@/components/gallery-grid";
-import { Reveal } from "@/components/reveal";
+import { PublicGalleryGrid } from "@/components/public-gallery-grid";
 import { getGalleryItems } from "@/lib/gallery-store";
 
 export default async function GalleryPage() {
@@ -14,9 +13,7 @@ export default async function GalleryPage() {
           A lighter, quieter gallery presentation that keeps the focus on atmosphere and detail.
         </p>
       </div>
-      <Reveal className="mt-10">
-        <GalleryGrid items={galleryItems} />
-      </Reveal>
+      <PublicGalleryGrid initialItems={galleryItems} />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
+import { prisma } from "@/lib/prisma";
 
 export type GalleryItem = {
   id: string;
@@ -10,6 +11,7 @@ export type GalleryItem = {
 
 const dataFilePath = path.join(process.cwd(), "data", "gallery-items.json");
 const uploadDirectoryPath = path.join(process.cwd(), "public", "gallery", "uploads");
+const useDatabaseStore = process.env.VERCEL === "1" || process.env.NODE_ENV === "production";
 
 async function ensureGalleryStore() {
   await mkdir(path.dirname(dataFilePath), { recursive: true });
@@ -17,6 +19,24 @@ async function ensureGalleryStore() {
 }
 
 export async function getGalleryItems() {
+  if (useDatabaseStore) {
+    try {
+      return await prisma.galleryImage.findMany({
+        orderBy: {
+          createdAt: "desc"
+        },
+        select: {
+          id: true,
+          title: true,
+          image: true
+        }
+      });
+    } catch (error) {
+      console.error("getGalleryItems prisma failed", error);
+      return [];
+    }
+  }
+
   await ensureGalleryStore();
   try {
     const file = await readFile(dataFilePath, "utf8");
@@ -33,21 +53,28 @@ async function saveGalleryItems(items: GalleryItem[]) {
   await writeFile(dataFilePath, JSON.stringify(items, null, 2));
 }
 
-export async function createGalleryItem(input: { title: string; file: File }) {
+export async function createGalleryItem(input: { title: string; image: string }) {
+  if (useDatabaseStore) {
+    return prisma.galleryImage.create({
+      data: {
+        title: input.title,
+        image: input.image
+      },
+      select: {
+        id: true,
+        title: true,
+        image: true
+      }
+    });
+  }
+
   await ensureGalleryStore();
-
-  const extension = path.extname(input.file.name) || ".jpg";
-  const fileName = `${randomUUID()}${extension}`;
-  const absoluteFilePath = path.join(uploadDirectoryPath, fileName);
-  const arrayBuffer = await input.file.arrayBuffer();
-
-  await writeFile(absoluteFilePath, Buffer.from(arrayBuffer));
 
   const items = await getGalleryItems();
   const item = {
     id: randomUUID(),
     title: input.title,
-    image: `/gallery/uploads/${fileName}`
+    image: input.image
   };
 
   items.unshift(item);
@@ -57,6 +84,16 @@ export async function createGalleryItem(input: { title: string; file: File }) {
 }
 
 export async function deleteGalleryItem(id: string) {
+  if (useDatabaseStore) {
+    try {
+      await prisma.galleryImage.delete({ where: { id } });
+      return true;
+    } catch (error) {
+      console.error("deleteGalleryItem prisma failed", error);
+      return false;
+    }
+  }
+
   const items = await getGalleryItems();
   const target = items.find((item) => item.id === id);
 
