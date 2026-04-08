@@ -49,12 +49,20 @@ export function AdminEventForm({ mode, event }: AdminEventFormProps) {
     const data = await response.json().catch(() => null);
 
     if (!response.ok) {
-      setError(data?.error ?? "Nu am putut incarca imaginea.");
+      setError(data?.error ?? "Nu s-a putut incarca poza.");
+      setDetails([]);
       setUploadingImage(false);
       return;
     }
 
-    setImage(data.url ?? "");
+    if (!data?.url) {
+      setError("Serverul nu a returnat URL-ul imaginii incarcate.");
+      setDetails([]);
+      setUploadingImage(false);
+      return;
+    }
+
+    setImage(data.url);
     setUploadingImage(false);
   }
 
@@ -63,6 +71,13 @@ export function AdminEventForm({ mode, event }: AdminEventFormProps) {
     setLoading(true);
     setError("");
     setDetails([]);
+
+    if (!image) {
+      setError("Imaginea evenimentului lipseste. Incarca o poza mai intai.");
+      setDetails(["Selecteaza o imagine si asteapta finalizarea upload-ului inainte sa salvezi evenimentul."]);
+      setLoading(false);
+      return;
+    }
 
     const formData = new FormData(formEvent.currentTarget);
     const payload = {
@@ -78,12 +93,10 @@ export function AdminEventForm({ mode, event }: AdminEventFormProps) {
     const data = await response.json().catch(() => null);
 
     if (!response.ok) {
+      const rawDetails = Object.values((data?.fieldErrors ?? {}) as Record<string, string[]>).flat().filter(Boolean);
+      const uniqueDetails = Array.from(new Set(rawDetails));
       setError(data?.error ?? "A aparut o eroare.");
-      setDetails(
-        Object.values((data?.fieldErrors ?? {}) as Record<string, string[]>)
-          .flat()
-          .filter(Boolean)
-      );
+      setDetails(uniqueDetails);
       setLoading(false);
       return;
     }
