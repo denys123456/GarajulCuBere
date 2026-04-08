@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
-import { safeCreateEvent } from "@/lib/event-records";
+import { safeCreateEvent, safeEventSelect, withEventDefaults } from "@/lib/event-records";
+import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 
 const schema = z.object({
@@ -15,6 +16,22 @@ const schema = z.object({
   location: z.string().optional().default(""),
   address: z.string().optional().default("")
 });
+
+export async function GET() {
+  await requireAdmin();
+
+  const events = await prisma.event.findMany({
+    select: safeEventSelect,
+    orderBy: {
+      date: "asc"
+    }
+  });
+
+  return NextResponse.json({
+    ok: true,
+    events: events.map(withEventDefaults)
+  });
+}
 
 export async function POST(request: Request) {
   await requireAdmin();
