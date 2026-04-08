@@ -12,9 +12,10 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
   const dragStateRef = useRef<{
     pointerId: number;
     startX: number;
+    startY: number;
     startOffset: number;
+    itemIndex: number | null;
   } | null>(null);
-  const pointerDistanceRef = useRef(0);
   const [itemsPerView, setItemsPerView] = useState(1);
   const [activeIndex, setActiveIndex] = useState(0);
   const [cardStep, setCardStep] = useState(0);
@@ -22,10 +23,15 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState<number | null>(null);
   const [startY, setStartY] = useState<number | null>(null);
+  const [isPointerDown, setIsPointerDown] = useState(false);
   const [selectedItem, setSelectedItem] = useState<DrinkMenuItem | null>(null);
   const maxIndex = Math.max(0, category.items.length - itemsPerView);
 
   useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
     const updateItemsPerView = () => {
       if (window.innerWidth >= 1280) {
         setItemsPerView(4);
@@ -47,6 +53,10 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
   }, []);
 
   useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
     const updateStep = () => {
       if (!firstCardRef.current && viewportRef.current) {
         const firstCard = viewportRef.current.querySelector<HTMLElement>("[data-menu-card]");
@@ -85,6 +95,10 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
 
   useEffect(() => {
     if (!selectedItem) {
+      return;
+    }
+
+    if (typeof document === "undefined") {
       return;
     }
 
@@ -142,15 +156,20 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
         className="overflow-hidden pb-2"
         style={{ touchAction: "pan-y" }}
         onPointerDown={(event) => {
+          const clickedCard = (event.target as HTMLElement).closest<HTMLElement>("[data-menu-card-index]");
+          const itemIndex = clickedCard ? Number.parseInt(clickedCard.dataset.menuCardIndex ?? "", 10) : null;
+
           dragStateRef.current = {
             pointerId: event.pointerId,
             startX: event.clientX,
-            startOffset: dragOffset
+            startY: event.clientY,
+            startOffset: dragOffset,
+            itemIndex: Number.isNaN(itemIndex ?? Number.NaN) ? null : itemIndex
           };
-          pointerDistanceRef.current = 0;
           setStartX(event.clientX);
           setStartY(event.clientY);
-          setIsDragging(true);
+          setIsDragging(false);
+          setIsPointerDown(true);
           event.currentTarget.setPointerCapture(event.pointerId);
         }}
         onPointerMove={(event) => {
@@ -159,8 +178,13 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
           }
 
           const deltaX = event.clientX - dragStateRef.current.startX;
-          const deltaY = startY === null ? 0 : event.clientY - startY;
-          pointerDistanceRef.current = Math.hypot(deltaX, deltaY);
+          const deltaY = event.clientY - dragStateRef.current.startY;
+          const distance = Math.hypot(deltaX, deltaY);
+
+          if (distance > 8 && !isDragging) {
+            setIsDragging(true);
+          }
+
           setDragOffset(dragStateRef.current.startOffset + deltaX);
         }}
         onPointerUp={(event) => {
@@ -169,19 +193,18 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
           }
 
           const projectedIndex = cardStep > 0 ? Math.round((-trackTranslate) / cardStep) : activeIndex;
-          const clickedCard = (event.target as HTMLElement).closest<HTMLElement>("[data-menu-card-index]");
-          const wasClick = pointerDistanceRef.current < 8;
+          const wasDrag = isDragging;
+          const itemIndex = dragStateRef.current.itemIndex;
           dragStateRef.current = null;
-          pointerDistanceRef.current = 0;
           setStartX(null);
           setStartY(null);
+          setIsPointerDown(false);
           setIsDragging(false);
           event.currentTarget.releasePointerCapture(event.pointerId);
           moveToIndex(projectedIndex);
 
-          if (wasClick && clickedCard) {
-            const indexValue = Number.parseInt(clickedCard.dataset.menuCardIndex ?? "", 10);
-            const item = category.items[indexValue];
+          if (!wasDrag && itemIndex !== null) {
+            const item = category.items[itemIndex];
 
             if (item) {
               setSelectedItem(item);
@@ -194,9 +217,9 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
           }
 
           dragStateRef.current = null;
-          pointerDistanceRef.current = 0;
           setStartX(null);
           setStartY(null);
+          setIsPointerDown(false);
           setIsDragging(false);
           moveToIndex(activeIndex);
         }}
@@ -205,7 +228,7 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
           className="scrollbar-hidden flex gap-4 will-change-transform"
           style={{
             transform: `translateX(${trackTranslate}px)`,
-            transition: isDragging ? "none" : "transform 0.28s cubic-bezier(0.22, 1, 0.36, 1)"
+            transition: isPointerDown ? "none" : "transform 0.28s cubic-bezier(0.22, 1, 0.36, 1)"
           }}
         >
           {category.items.map((item, index) => (
@@ -278,6 +301,10 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
             <div className="px-2 pb-2 pt-5">
               <p className="font-display text-3xl font-semibold text-ink">{selectedItem.name}</p>
               <p className="mt-2 text-sm leading-7 text-ink/58">{category.title}</p>
+              <div className="mt-4 flex flex-wrap gap-3 text-sm text-ink/62">
+                <span className="rounded-full bg-[#fbf5eb] px-4 py-2">Pret: n/a</span>
+                <span className="rounded-full bg-[#fbf5eb] px-4 py-2">ML: n/a</span>
+              </div>
             </div>
           </div>
         </div>
