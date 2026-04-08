@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import { isValidRomanianCNP } from "@/lib/cnp";
+import { safeEventSelect } from "@/lib/event-records";
 import { prisma } from "@/lib/prisma";
 
 const schema = z.object({
@@ -25,7 +26,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Introduceți un CNP valid" }, { status: 400 });
   }
 
-  const event = await prisma.event.findUnique({ where: { id: parsed.data.eventId } });
+  const event = await prisma.event.findUnique({ where: { id: parsed.data.eventId }, select: safeEventSelect });
 
   if (!event) {
     return NextResponse.json({ error: "Evenimentul nu există." }, { status: 404 });

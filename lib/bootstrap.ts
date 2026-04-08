@@ -1,6 +1,7 @@
 import { Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { safeUpsertEvent } from "@/lib/event-records";
 import { seedEvents } from "@/lib/seed-data";
 
 let bootstrapped = false;
@@ -27,11 +28,7 @@ export async function ensureSeedData() {
   }
 
   for (const event of seedEvents) {
-    await prisma.event.upsert({
-      where: { slug: event.slug },
-      update: event,
-      create: event
-    });
+    await safeUpsertEvent(event);
   }
 
   bootstrapped = true;

@@ -4,6 +4,7 @@ import { ensureSeedData } from "@/lib/bootstrap";
 import { businessInfo } from "@/lib/business-data";
 import { getDrinkMenuCategories } from "@/lib/drinks-menu";
 import { isPastEvent } from "@/lib/event-utils";
+import { safeEventSelect, withEventDefaults } from "@/lib/event-records";
 import { prisma } from "@/lib/prisma";
 import { EventCard } from "@/components/event-card";
 import { Reveal } from "@/components/reveal";
@@ -14,14 +15,16 @@ export default async function HomePage() {
   const [featuredCategories, events] = await Promise.all([
     getDrinkMenuCategories().then((categories) => categories.slice(0, 6)),
     prisma.event.findMany({
+      select: safeEventSelect,
       orderBy: {
         date: "asc"
       }
     })
   ]);
+  const normalizedEvents = events.map(withEventDefaults);
 
-  const activeEvents = events.filter((event) => !isPastEvent(event));
-  const pastEvents = events.filter((event) => isPastEvent(event)).sort((a, b) => +new Date(b.date) - +new Date(a.date));
+  const activeEvents = normalizedEvents.filter((event) => !isPastEvent(event));
+  const pastEvents = normalizedEvents.filter((event) => isPastEvent(event)).sort((a, b) => +new Date(b.date) - +new Date(a.date));
   const mapsEmbedUrl =
     "https://www.google.com/maps?q=Strada+Luceaf%C4%83rului+617400+S%C4%83b%C4%83oani&z=15&output=embed";
 

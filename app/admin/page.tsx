@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { ensureSeedData } from "@/lib/bootstrap";
 import { isPastEvent } from "@/lib/event-utils";
+import { safeEventSelect, withEventDefaults } from "@/lib/event-records";
 import { getGalleryItems } from "@/lib/gallery-store";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -61,11 +62,18 @@ export default async function AdminPage() {
 
   const [events, tickets, galleryItems] = await Promise.all([
     prisma.event.findMany({
+      select: safeEventSelect,
       orderBy: { date: "asc" }
     }),
     prisma.ticket.findMany({
       include: {
-        event: true,
+        event: {
+          select: {
+            id: true,
+            title: true,
+            date: true
+          }
+        },
         user: true
       },
       orderBy: {
@@ -74,9 +82,10 @@ export default async function AdminPage() {
     }),
     getGalleryItems()
   ]);
+  const normalizedEvents = events.map(withEventDefaults);
 
-  const activeEvents = events.filter((event) => !isPastEvent(event));
-  const pastEvents = events.filter((event) => isPastEvent(event)).sort((a, b) => +new Date(b.date) - +new Date(a.date));
+  const activeEvents = normalizedEvents.filter((event) => !isPastEvent(event));
+  const pastEvents = normalizedEvents.filter((event) => isPastEvent(event)).sort((a, b) => +new Date(b.date) - +new Date(a.date));
 
   return (
     <div className="section-shell py-10 pb-24 lg:py-16">

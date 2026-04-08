@@ -3,6 +3,7 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import type { Role } from "@prisma/client";
+import { safeEventSelect, withEventDefaults } from "@/lib/event-records";
 import { prisma } from "@/lib/prisma";
 
 const COOKIE_NAME = "garajul-session";
@@ -78,13 +79,27 @@ export async function getCurrentUser() {
     include: {
       tickets: {
         include: {
-          event: true
+          event: {
+            select: safeEventSelect
+          }
         },
         orderBy: {
           purchasedAt: "desc"
         }
       }
     }
+  }).then((user) => {
+    if (!user) {
+      return null;
+    }
+
+    return {
+      ...user,
+      tickets: user.tickets.map((ticket) => ({
+        ...ticket,
+        event: withEventDefaults(ticket.event)
+      }))
+    };
   });
 }
 

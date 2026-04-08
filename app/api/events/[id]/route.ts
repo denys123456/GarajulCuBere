@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
+import { safeUpdateEvent } from "@/lib/event-records";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 
@@ -26,13 +27,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "Datele nu sunt valide." }, { status: 400 });
   }
 
-  const event = await prisma.event.update({
-    where: { id },
-    data: {
-      ...parsed.data,
-      slug: slugify(parsed.data.title),
-      date: new Date(parsed.data.date)
-    }
+  const event = await safeUpdateEvent(id, {
+    ...parsed.data,
+    slug: slugify(parsed.data.title),
+    date: new Date(parsed.data.date)
   });
 
   return NextResponse.json({ ok: true, event });

@@ -1,10 +1,10 @@
 import bcrypt from "bcryptjs";
 import { PrismaClient, Role } from "@prisma/client";
+import { safeUpsertEvent } from "../lib/event-records";
 import { seedEvents } from "../lib/seed-data";
 
-const prisma = new PrismaClient();
-
 async function main() {
+  const prisma = new PrismaClient();
   const adminEmail = process.env.ADMIN_EMAIL ?? "admin@garajulcubere.ro";
   const adminPassword = process.env.ADMIN_PASSWORD ?? "Garaj2026!";
 
@@ -22,19 +22,14 @@ async function main() {
   }
 
   for (const event of seedEvents) {
-    await prisma.event.upsert({
-      where: { slug: event.slug },
-      update: event,
-      create: event
-    });
+    await safeUpsertEvent(event, prisma);
   }
+
+  await prisma.$disconnect();
 }
 
 main()
   .catch((error) => {
     console.error(error);
     process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
   });

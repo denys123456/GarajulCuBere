@@ -1,5 +1,6 @@
 import { ensureSeedData } from "@/lib/bootstrap";
 import { isPastEvent } from "@/lib/event-utils";
+import { safeEventSelect, withEventDefaults } from "@/lib/event-records";
 import { prisma } from "@/lib/prisma";
 import { EventCard } from "@/components/event-card";
 import { Reveal } from "@/components/reveal";
@@ -8,13 +9,15 @@ export default async function EventsPage() {
   await ensureSeedData();
 
   const events = await prisma.event.findMany({
+    select: safeEventSelect,
     orderBy: {
       date: "asc"
     }
   });
+  const normalizedEvents = events.map(withEventDefaults);
 
-  const activeEvents = events.filter((event) => !isPastEvent(event));
-  const pastEvents = events.filter((event) => isPastEvent(event)).sort((a, b) => +new Date(b.date) - +new Date(a.date));
+  const activeEvents = normalizedEvents.filter((event) => !isPastEvent(event));
+  const pastEvents = normalizedEvents.filter((event) => isPastEvent(event)).sort((a, b) => +new Date(b.date) - +new Date(a.date));
 
   return (
     <div className="section-shell py-10 pb-24 lg:py-16">
