@@ -261,6 +261,12 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
 
               <div className="px-2 pb-2 pt-4">
                 <p className="font-display text-xl font-semibold leading-tight text-ink">{item.name}</p>
+                <div className="mt-3 flex flex-wrap gap-2 text-sm text-ink/68">
+                  <span className="rounded-full bg-[#fbf5eb] px-3 py-1.5">{item.price} RON</span>
+                  {typeof item.ml === "number" && (
+                    <span className="rounded-full bg-[#f5efe6] px-3 py-1.5">{item.ml} ml</span>
+                  )}
+                </div>
               </div>
             </motion.article>
           ))}
@@ -302,8 +308,10 @@ export function DrinksMenuGrid({ category }: { category: DrinkMenuCategory }) {
               <p className="font-display text-3xl font-semibold text-ink">{selectedItem.name}</p>
               <p className="mt-2 text-sm leading-7 text-ink/58">{category.title}</p>
               <div className="mt-4 flex flex-wrap gap-3 text-sm text-ink/62">
-                <span className="rounded-full bg-[#fbf5eb] px-4 py-2">Pret: n/a</span>
-                <span className="rounded-full bg-[#fbf5eb] px-4 py-2">ML: n/a</span>
+                <span className="rounded-full bg-[#fbf5eb] px-4 py-2">Pret: {selectedItem.price} RON</span>
+                {typeof selectedItem.ml === "number" && (
+                  <span className="rounded-full bg-[#fbf5eb] px-4 py-2">ML: {selectedItem.ml} ml</span>
+                )}
               </div>
             </div>
           </div>
