@@ -14,8 +14,8 @@ type AdminEventFormProps = {
     date: Date;
     duration: string;
     startHour: string;
-    location: string;
-    address: string;
+    location?: string | null;
+    address?: string | null;
   };
 };
 
@@ -113,11 +113,11 @@ export function AdminEventForm({ mode, event }: AdminEventFormProps) {
         <div className="grid gap-4 md:grid-cols-2">
           <label className="grid gap-2 text-sm text-ink/72">
             Location
-            <input name="location" defaultValue={event?.location} className={inputClass} />
+            <input name="location" defaultValue={event?.location ?? ""} className={inputClass} />
           </label>
           <label className="grid gap-2 text-sm text-ink/72">
             Address
-            <input name="address" defaultValue={event?.address} className={inputClass} />
+            <input name="address" defaultValue={event?.address ?? ""} className={inputClass} />
           </label>
         </div>
 
